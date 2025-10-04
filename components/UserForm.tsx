@@ -15,17 +15,17 @@ const RETIREMENT_AGE_WOMAN = 60;
 const RETIREMENT_AGE_MAN = 65;
 
 const UserForm: React.FC = () => {
-    const {setUser} = useUser();
-    const [formData, setFormData] = useState({
-    age: '' as number | '',
-    gender: '' as Gender | '',
-    grossSalary: '' as number | '',
-    startYear: new Date().getFullYear() as number | '',
-    plannedRetirementYear: '' as number | '',
-});
-
-
+    const {setUser, user} = useUser();
     const currentYear = new Date().getFullYear();
+    const initialStartYear = user?.StartYear ?? currentYear; 
+     const [formData, setFormData] = useState<RetirementData>({
+        age: user?.age ?? '' as number | '',
+        gender: user?.sex ?? '' as Gender | '',
+        grossSalary: user?.GrossSalary ?? '' as number | '',
+        startYear: initialStartYear,
+        plannedRetirementYear: user?.PlannedRetirementYear ?? '' as number | '',
+    });
+
     const lastDefaultYear = useRef<number | ''>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -76,6 +76,31 @@ const UserForm: React.FC = () => {
 
     },
     [defaultRetirementYear, formData.plannedRetirementYear]);
+
+    React.useEffect(() => {
+        const validData = {
+            age: formData.age,
+            sex: formData.gender,
+            GrossSalary: formData.grossSalary,
+            StartYear: formData.startYear,
+            PlannedRetirementYear: formData.plannedRetirementYear
+        };
+
+        const allFieldsValid = Object.values(validData).every(value => 
+            value !== '' && value !== null && value !== undefined
+        );
+
+        if (allFieldsValid) {
+            setUser({
+                age: validData.age as number,
+                sex: validData.sex as Gender,
+                GrossSalary: validData.GrossSalary as number,
+                StartYear: validData.StartYear as number,
+                PlannedRetirementYear: validData.PlannedRetirementYear as number
+            });
+            console.log("Dane zapisane w kontekście automatycznie:", validData);
+        }
+    }, [formData, setUser])
 
     const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
