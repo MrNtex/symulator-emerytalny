@@ -253,3 +253,17 @@ export function calculateMonthlyPension(totalPension: number, retirementAge: num
   return Math.round(monthlyPension * 100) / 100;
 }
 
+export function calculateRetirementStep(params: CalculationParams): number {
+  const { monthlyIncome, yearWorkStart, yearRetirement } = params;
+  
+  if (yearWorkStart >= yearRetirement) {
+    throw new Error('Work start year must be before retirement year');
+  }
+  
+  if (monthlyIncome <= 0) {
+    throw new Error('Monthly income must be positive');
+  }
+  const lastSalary = calculateFinalSalary(monthlyIncome, yearWorkStart, yearRetirement - yearWorkStart);
+  const totalPension = calculateRealPension(params);
+
+}
