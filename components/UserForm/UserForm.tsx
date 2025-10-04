@@ -104,39 +104,33 @@ const UserForm: React.FC = () => {
     }, [formData, setUser])
 
     const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
-    if (isFormValid) {
-
-    setUser({
-        age: formData.age as number,
-        sex: formData.gender as Gender,
-        GrossSalary: formData.grossSalary as number,
-        StartYear: formData.startYear as number,
-        PlannedRetirementYear: formData.plannedRetirementYear as number
-    });
-        console.log("Dane gotowe do symulacji:", formData);
-        alert("Formularz wysłany i zapisany w kontekście!");
-    } else {
-        alert("Proszę wypełnić wszystkie obowiązkowe pola.");
-    }
-};
+        e.preventDefault();
+        
+        const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
+        if (isFormValid) {
+            setUser({
+                age: formData.age as number,
+                sex: formData.gender as Gender,
+                GrossSalary: formData.grossSalary as number,
+                StartYear: formData.startYear as number,
+                PlannedRetirementYear: formData.plannedRetirementYear as number
+            });
+            console.log("Dane gotowe do symulacji:", formData);
+            alert("Formularz wysłany i zapisany w kontekście!");
+        } else {
+            alert("Proszę wypełnić wszystkie obowiązkowe pola.");
+        }
+    };
 
     return (
-        <Form action={(() => {}) as any}
+        <Form 
+            action={(() => {}) as any}
             onSubmit={handleSubmit} 
-            style={{ 
-                maxWidth: '400px', 
-                margin: '20px auto', 
-                padding: '20px', 
-                border: '1px solid #ccc', 
-                borderRadius: '5px' 
-            }}
+            className="retirement-form"
         >
             <h2>Symulacja Emerytury</h2>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div className="form-group">
                 <label htmlFor="age">Wiek (lata): *</label>
                 <input
                     type="number"
@@ -147,11 +141,10 @@ const UserForm: React.FC = () => {
                     value={formData.age}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div className="form-group">
                 <label htmlFor="gender">Płeć: *</label>
                 <select
                     id="gender"
@@ -159,7 +152,6 @@ const UserForm: React.FC = () => {
                     value={formData.gender}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 >
                     <option value="">-- Wybierz płeć --</option>
                     <option value="Kobieta">Kobieta</option>
@@ -167,7 +159,7 @@ const UserForm: React.FC = () => {
                 </select>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div className="form-group">
                 <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
                 <input
                     type="number"
@@ -178,11 +170,10 @@ const UserForm: React.FC = () => {
                     value={formData.grossSalary}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div className="form-group">
                 <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
                 <input
                     type="number"
@@ -193,11 +184,10 @@ const UserForm: React.FC = () => {
                     value={formData.startYear}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
+            <div className="form-group">
                 <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
                 <input
                     type="number"
@@ -208,16 +198,15 @@ const UserForm: React.FC = () => {
                     value={formData.plannedRetirementYear}
                     onChange={handleChange}
                     required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
                 />
                 {defaultRetirementYear && (
-                    <p style={{ fontSize: '0.8em', color: '#555' }}>
+                    <p className="form-hint">
                         * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
                     </p>
                 )}
             </div>
 
-            <button type="submit" style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+            <button type="submit">
                 Symuluj Emeryturę
             </button>
         </Form>
