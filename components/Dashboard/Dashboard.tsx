@@ -19,12 +19,21 @@ interface SickLeaveEvent {
   title: string;
 }
 
-type TimelineEvent = SalaryChangeEvent | SickLeaveEvent;
+interface SubAccountDepositEvent {
+  id: string;
+  type: 'subAccountDeposit';
+  date: string;
+  amount: number;
+  title: string;
+}
+
+type TimelineEvent = SalaryChangeEvent | SickLeaveEvent | SubAccountDepositEvent;
 
 const Dashboard = () => {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
   const [isAddingSickLeave, setIsAddingSickLeave] = useState(false);
+  const [isAddingSubAccountDeposit, setIsAddingSubAccountDeposit] = useState(false);
 
   const [salaryChange, setSalaryChange] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -35,6 +44,12 @@ const Dashboard = () => {
   const [sickLeave, setSickLeave] = useState({
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
+    title: '',
+  });
+
+  const [subAccountDeposit, setSubAccountDeposit] = useState({
+    date: new Date().toISOString().split('T')[0],
+    amount: 0,
     title: '',
   });
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -97,6 +112,25 @@ const Dashboard = () => {
     }
   };
 
+  const handleAddSubAccountDeposit = () => {
+    if (subAccountDeposit.date && subAccountDeposit.amount && subAccountDeposit.title) {
+      const event: SubAccountDepositEvent = {
+        id: Date.now().toString(),
+        type: 'subAccountDeposit',
+        date: subAccountDeposit.date,
+        amount: subAccountDeposit.amount,
+        title: subAccountDeposit.title,
+      };
+      setEvents([...events, event]);
+      setIsAddingSubAccountDeposit(false);
+      setSubAccountDeposit({
+        date: new Date().toISOString().split('T')[0],
+        amount: 0,
+        title: '',
+      });
+    }
+  };
+
   const handleDeleteEvent = (id: string) => {
     setEvents(events.filter(e => e.id !== id));
   };
@@ -106,14 +140,16 @@ const Dashboard = () => {
       case 'salary':
         return '#00993F';
       case 'sickLeave':
-        return '#f59e0b';
+        return '#dc2626';
+      case 'subAccountDeposit':
+        return '#2563eb';
       default:
         return '#00993F';
     }
   };
 
   const getEventYear = (event: TimelineEvent): number => {
-    if (event.type === 'salary') {
+    if (event.type === 'salary' || event.type === 'subAccountDeposit') {
       return new Date(event.date).getFullYear();
     } else {
       return new Date(event.startDate).getFullYear();
@@ -121,7 +157,7 @@ const Dashboard = () => {
   };
 
   const getEventDateRange = (event: TimelineEvent): { start: Date; end: Date } => {
-    if (event.type === 'salary') {
+    if (event.type === 'salary' || event.type === 'subAccountDeposit') {
       const date = new Date(event.date);
       return { start: date, end: date };
     } else {
@@ -173,6 +209,12 @@ const Dashboard = () => {
                 onClick={() => setIsAddingSickLeave(true)}
               >
                 + Chorobowy
+              </button>
+              <button
+                className="add-event-btn subaccount-btn"
+                onClick={() => setIsAddingSubAccountDeposit(true)}
+              >
+                + Wpłata na subkonto
               </button>
             </div>
           </div>
@@ -394,6 +436,67 @@ const Dashboard = () => {
                   className="confirm-btn"
                   onClick={handleAddSickLeave}
                   disabled={!sickLeave.startDate || !sickLeave.endDate || !sickLeave.title}
+                >
+                  Dodaj
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isAddingSubAccountDeposit && (
+          <div className="modal-overlay" onClick={() => setIsAddingSubAccountDeposit(false)}>
+            <div className="event-modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Wpłata na subkonto</h3>
+
+              <div className="form-group">
+                <label>Tytuł</label>
+                <input
+                  type="text"
+                  value={subAccountDeposit.title}
+                  onChange={(e) => setSubAccountDeposit({ ...subAccountDeposit, title: e.target.value })}
+                  placeholder="Np. Dodatkowa wpłata, Premia"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Data</label>
+                <input
+                  type="date"
+                  value={subAccountDeposit.date}
+                  onChange={(e) => setSubAccountDeposit({ ...subAccountDeposit, date: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Kwota (zł)</label>
+                <input
+                  type="number"
+                  value={subAccountDeposit.amount || ''}
+                  onChange={(e) => setSubAccountDeposit({ ...subAccountDeposit, amount: parseFloat(e.target.value) })}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setIsAddingSubAccountDeposit(false);
+                    setSubAccountDeposit({
+                      date: new Date().toISOString().split('T')[0],
+                      amount: 0,
+                      title: '',
+                    });
+                  }}
+                >
+                  Anuluj
+                </button>
+                <button
+                  className="confirm-btn"
+                  onClick={handleAddSubAccountDeposit}
+                  disabled={!subAccountDeposit.date || !subAccountDeposit.amount || !subAccountDeposit.title}
                 >
                   Dodaj
                 </button>

@@ -124,11 +124,19 @@
   }
 
   .add-event-btn.sickleave-btn {
-    background-color: #f59e0b;
+    background-color: #dc2626;
   }
 
   .add-event-btn.sickleave-btn:hover {
-    background-color: #d97706;
+    background-color: #b91c1c;
+  }
+
+  .add-event-btn.subaccount-btn {
+    background-color: #2563eb;
+  }
+
+  .add-event-btn.subaccount-btn:hover {
+    background-color: #1d4ed8;
   }
   
   .timeline-container {
