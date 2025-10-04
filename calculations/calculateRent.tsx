@@ -1,5 +1,3 @@
-
-
 interface SalaryGrowthData {
   [year: string]: string;
 }
@@ -10,12 +8,10 @@ interface CalculationParams {
   yearRetirement: number;
 }
 
-
-
-
 import data from './wskaznik_wzrostu_wynagrodzenia.json';
-
+const contributionRate = 0.1952;
 const salaryGrowthData = data as SalaryGrowthData;
+const monthsInYear = 12;
 
 const parsePercentage = (percentageStr: string): number => {
   return parseFloat(percentageStr.replace('%', '')) / 100;
@@ -34,7 +30,7 @@ export function calculateRent(params: CalculationParams): number {
   }
   
   let totalRent = 0;
-  const yearlyContribution = monthlyIncome * 12 * 0.1952; 
+  const yearlyContribution = monthlyIncome * monthsInYear * contributionRate; 
   
   for (let year = yearWorkStart; year < yearRetirement; year++) {
     totalRent += yearlyContribution;
@@ -70,7 +66,7 @@ export function calculateRealRent(params: CalculationParams): number {
     const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
     const realGrowthRate = wageGrowthRate + inflationRate; 
     
-    const yearlyContribution = currentIncome * 12 * 0.1952;
+    const yearlyContribution = currentIncome * monthsInYear * contributionRate;
     totalRent += yearlyContribution;
     
     currentIncome *= (1 + realGrowthRate);
