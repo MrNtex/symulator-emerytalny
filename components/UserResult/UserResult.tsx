@@ -42,6 +42,7 @@ const PensionDisplay = () => {
   try {
     actualTotal = calculatePension(calculationParams);
     realTotal = calculateRealPension(calculationParams);
+
     sickDaysTotal = calculateSickDaysImpact(calculationParams);
     delayedTotal = calculateDelayedRetirementRent(calculationParams, delayedRetirementYear, false);
     actualMonthly = calculateMonthlyPension(actualTotal, retirementAge);
