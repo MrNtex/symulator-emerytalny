@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
 interface RetirementData {
