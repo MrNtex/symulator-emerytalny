@@ -1,6 +1,6 @@
 'use client'
-import UserForm from '@/components/UserForm/UserForm'
+import RentModal from '@/components/RentModal/RentModal'
 
 export default function Page() {
-  return <UserForm />
+  return <RentModal />
 }

@@ -22,36 +22,38 @@ const Home = () => {
   }, [])
 
   return (
-    <div className="home-container">
-      <div className="retirement-question">
-        <h2>Jaka emerytura Cię satysfakcjonuje?</h2>
-        <div className="input-group">
-          <input 
-            type="number" 
-            className="retirement-input"
-            placeholder="0"
-            min="0"
-            value={retirementAmount}
-            onChange={(e) => setRetirementAmount(e.target.value)}
-          />
-          <span className="currency-label">PLN/mies.</span>
+    <div className='rent-modal-container'>
+      <div className="home-container">
+        <div className="retirement-question">
+          <h2>Jaka emerytura Cię satysfakcjonuje?</h2>
+          <div className="input-group">
+            <input 
+              type="number" 
+              className="retirement-input"
+              placeholder="0"
+              min="0"
+              value={retirementAmount}
+              onChange={(e) => setRetirementAmount(e.target.value)}
+            />
+            <span className="currency-label">PLN/mies.</span>
+          </div>
+          <button className="simulation-button">
+            Przejdź do symulacji
+          </button>
         </div>
-        <button className="simulation-button">
-          Przejdź do symulacji
-        </button>
-      </div>
 
-      <div className="fun-fact-section">
-        <h3 className="fun-fact-title">Czy wiesz, że...</h3>
-        <p className="fun-fact-content">
-          {funFact}
-        </p>
-      </div>
+        <div className="fun-fact-section">
+          <h3 className="fun-fact-title">Czy wiesz, że...</h3>
+          <p className="fun-fact-content">
+            {funFact}
+          </p>
+        </div>
 
-      <div className="charts-section">
-        <h3 className="charts-title">Twoje prognozy emerytalne (rozkład emerytur)</h3>
-        <div className="charts-placeholder">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+        <div className="charts-section">
+          <h3 className="charts-title">Twoje prognozy emerytalne (rozkład emerytur)</h3>
+          <div className="charts-placeholder">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+          </div>
         </div>
       </div>
     </div>
