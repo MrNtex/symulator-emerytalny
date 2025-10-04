@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
+import { useRouter } from 'next/navigation';
 import './UserForm.css';
 import {useUser, UserProvider, Gender} from '@/context/UserContext';
 
@@ -16,6 +17,7 @@ const RETIREMENT_AGE_WOMAN = 60;
 const RETIREMENT_AGE_MAN = 65;
 
 const UserForm: React.FC = () => {
+    const router = useRouter();
     const {setUser, user} = useUser();
     const currentYear = new Date().getFullYear();
     const initialStartYear = user?.StartYear ?? currentYear; 
@@ -104,115 +106,124 @@ const UserForm: React.FC = () => {
     }, [formData, setUser])
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
-        if (isFormValid) {
-            setUser({
-                age: formData.age as number,
-                sex: formData.gender as Gender,
-                GrossSalary: formData.grossSalary as number,
-                StartYear: formData.startYear as number,
-                PlannedRetirementYear: formData.plannedRetirementYear as number
-            });
-            console.log("Dane gotowe do symulacji:", formData);
-            alert("Formularz wysłany i zapisany w kontekście!");
-        } else {
-            alert("Proszę wypełnić wszystkie obowiązkowe pola.");
-        }
-    };
+    e.preventDefault();
+    
+    const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
+    if (isFormValid) {
+
+    setUser({
+        age: formData.age as number,
+        sex: formData.gender as Gender,
+        GrossSalary: formData.grossSalary as number,
+        StartYear: formData.startYear as number,
+        PlannedRetirementYear: formData.plannedRetirementYear as number
+    });
+        console.log("Dane gotowe do symulacji:", formData);
+        alert("Formularz wysłany i zapisany w kontekście!");
+        router.push('/wyniki'); 
+    } else {
+        alert("Proszę wypełnić wszystkie obowiązkowe pola.");
+    }
+};
 
     return (
-        <div className="user-form-container">
-            <Form 
-                action={(() => {}) as any}
-                onSubmit={handleSubmit} 
-                className="retirement-form"
-            >
-                <h2>Symulacja Emerytury</h2>
+        <Form action={(() => {}) as any}
+            onSubmit={handleSubmit} 
+            style={{ 
+                maxWidth: '400px', 
+                margin: '20px auto', 
+                padding: '20px', 
+                border: '1px solid #ccc', 
+                borderRadius: '5px' 
+            }}
+        >
+            <h2>Symulacja Emerytury</h2>
 
-                <div className="form-group">
-                    <label htmlFor="age">Wiek (lata): *</label>
-                    <input
-                        type="number"
-                        id="age"
-                        name="age"
-                        min="18"
-                        max="100"
-                        value={formData.age}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="age">Wiek (lata): *</label>
+                <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    min="18"
+                    max="100"
+                    value={formData.age}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+            </div>
 
-                <div className="form-group">
-                    <label htmlFor="gender">Płeć: *</label>
-                    <select
-                        id="gender"
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleChange}
-                        required
-                    >
-                        <option value="">-- Wybierz płeć --</option>
-                        <option value="Kobieta">Kobieta</option>
-                        <option value="Mężczyzna">Mężczyzna</option>
-                    </select>
-                </div>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="gender">Płeć: *</label>
+                <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                >
+                    <option value="">-- Wybierz płeć --</option>
+                    <option value="Kobieta">Kobieta</option>
+                    <option value="Mężczyzna">Mężczyzna</option>
+                </select>
+            </div>
 
-                <div className="form-group">
-                    <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
-                    <input
-                        type="number"
-                        id="grossSalary"
-                        name="grossSalary"
-                        min="1000"
-                        step="500"
-                        value={formData.grossSalary}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
+                <input
+                    type="number"
+                    id="grossSalary"
+                    name="grossSalary"
+                    min="1000"
+                    step="500"
+                    value={formData.grossSalary}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+            </div>
 
-                <div className="form-group">
-                    <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
-                    <input
-                        type="number"
-                        id="startYear"
-                        name="startYear"
-                        min="1945"
-                        step="1"
-                        value={formData.startYear}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
+                <input
+                    type="number"
+                    id="startYear"
+                    name="startYear"
+                    min="1945"
+                    step="1"
+                    value={formData.startYear}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+            </div>
 
-                <div className="form-group">
-                    <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
-                    <input
-                        type="number"
-                        id="plannedRetirementYear"
-                        name="plannedRetirementYear"
-                        min={defaultRetirementYear || currentYear} 
-                        step="1"
-                        value={formData.plannedRetirementYear}
-                        onChange={handleChange}
-                        required
-                    />
-                    {defaultRetirementYear && (
-                        <p className="form-hint">
-                            * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
-                        </p>
-                    )}
-                </div>
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
+                <input
+                    type="number"
+                    id="plannedRetirementYear"
+                    name="plannedRetirementYear"
+                    min={defaultRetirementYear || currentYear} 
+                    step="1"
+                    value={formData.plannedRetirementYear}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+                {defaultRetirementYear && (
+                    <p style={{ fontSize: '0.8em', color: '#555' }}>
+                        * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
+                    </p>
+                )}
+            </div>
 
-                <button type="submit">
-                    Symuluj Emeryturę
-                </button>
-            </Form>
-        </div>
-        
+            <button type="submit" onClick={handleSubmit} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                Symuluj Emeryturę
+            </button>
+        </Form>
     );
 };
 
