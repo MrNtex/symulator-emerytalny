@@ -1,10 +1,25 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './RentModal.css'
 
 const Home = () => {
   const [retirementAmount, setRetirementAmount] = useState('')
+  const [funFact, setFunFact] = useState('')
+
+  useEffect(() => {
+    fetch('/data/funFacts.json')
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          const randomIndex = Math.floor(Math.random() * data.length)
+          setFunFact(data[randomIndex])
+        } else {
+          setFunFact("Brak dostępnych ciekawostek.")
+        }
+      })
+      .catch(() => setFunFact("Nie udało się załadować ciekawostek."))
+  }, [])
 
   return (
     <div className="home-container">
@@ -29,7 +44,7 @@ const Home = () => {
       <div className="fun-fact-section">
         <h3 className="fun-fact-title">Czy wiesz, że...</h3>
         <p className="fun-fact-content">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.
+          {funFact}
         </p>
       </div>
 
