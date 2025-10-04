@@ -1,7 +1,8 @@
 'use client'
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
-import {useUser, UserProvider, Gender} from '../context/UserContext';
+import './UserForm.css';
+import {useUser, UserProvider, Gender} from '@/context/UserContext';
 
 interface RetirementData {
     age: number | ''; 
