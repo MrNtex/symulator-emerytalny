@@ -1,0 +1,50 @@
+[
+  {
+    "range": "do 1200 zl",
+    "value": 1.3,
+    "description": "Emerytury poniżej średniej: krótszy staż pracy, niskie składki, brak prawa do minimalnej emerytury.",
+    "midpoint": 600
+  },
+  {
+    "range": "1200-2000 zl",
+    "value": 12.0,
+    "description": "Emerytury średnie: standardowy staż pracy, przeciętne składki.",
+    "midpoint": 1600
+  },
+  {
+    "range": "2000-3000 zl",
+    "value": 25.0,
+    "description": "Wyższe emerytury: osoby z długim stażem i wyższymi składkami.",
+    "midpoint": 2500
+  },
+  {
+    "range": "3000-4000 zl",
+    "value": 25.0,
+    "description": "Duże emerytury: wyższe składki i długość pracy, często pracownicy budżetówki lub wykwalifikowani specjaliści.",
+    "midpoint": 3500
+  },
+  {
+    "range": "4000-5000 zl",
+    "value": 15.0,
+    "description": "Emerytury wysokie: długo pracujący, wysokie wynagrodzenie.",
+    "midpoint": 4500
+  },
+  {
+    "range": "5000-6000 zl",
+    "value": 10.0,
+    "description": "Emerytury bardzo wysokie: osoby z wysokimi składkami i pełnym stażem.",
+    "midpoint": 5500
+  },
+  {
+    "range": "6000-7000 zl",
+    "value": 6.0,
+    "description": "Najwyższe emerytury: top zarobki, pełny staż, wysoka składka.",
+    "midpoint": 6500
+  },
+  {
+    "range": "7000+ zl",
+    "value": 5.7,
+    "description": "Emerytury ekstremalnie wysokie: niewielka grupa beneficjentów.",
+    "midpoint": 7500
+  }
+]
