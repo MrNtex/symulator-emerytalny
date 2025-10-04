@@ -176,6 +176,7 @@ const UserForm: React.FC = () => {
                 </select>
             </div>
 
+<<<<<<< HEAD
                 <div className="form-group">
                     <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
                     <div className="number-input-wrapper">
@@ -240,6 +241,57 @@ const UserForm: React.FC = () => {
                         </p>
                     )}
                 </div>
+=======
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
+                <input
+                    type="number"
+                    id="grossSalary"
+                    name="grossSalary"
+                    min="1000"
+                    step="500"
+                    value={formData.grossSalary}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
+                <input
+                    type="number"
+                    id="startYear"
+                    name="startYear"
+                    min="1945"
+                    step="1"
+                    value={formData.startYear}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+            </div>
+
+            <div style={{ marginBottom: '15px' }}>
+                <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
+                <input
+                    type="number"
+                    id="plannedRetirementYear"
+                    name="plannedRetirementYear"
+                    min={defaultRetirementYear || currentYear} 
+                    step="1"
+                    value={formData.plannedRetirementYear}
+                    onChange={handleChange}
+                    required
+                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+                />
+                {defaultRetirementYear && (
+                    <p style={{ fontSize: '0.8em', color: '#555' }}>
+                        * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
+                    </p>
+                )}
+            </div>
+>>>>>>> 5376a0983cd7f08552c535b44a8f9be3ea2f8f64
 
             <button type="submit" onClick={handleSubmit} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                 Symuluj Emeryturę
