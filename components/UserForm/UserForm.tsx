@@ -103,6 +103,7 @@ const UserForm: React.FC = () => {
         }
     }, [formData, setUser])
 
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -133,16 +134,22 @@ const UserForm: React.FC = () => {
 
                 <div className="form-group">
                     <label htmlFor="age">Wiek (lata): *</label>
-                    <input
-                        type="number"
-                        id="age"
-                        name="age"
-                        min="18"
-                        max="100"
-                        value={formData.age}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="age"
+                            name="age"
+                            min="18"
+                            max="100"
+                            value={formData.age}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="form-group">
@@ -162,44 +169,62 @@ const UserForm: React.FC = () => {
 
                 <div className="form-group">
                     <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
-                    <input
-                        type="number"
-                        id="grossSalary"
-                        name="grossSalary"
-                        min="1000"
-                        step="500"
-                        value={formData.grossSalary}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="grossSalary"
+                            name="grossSalary"
+                            min="1000"
+                            step="500"
+                            value={formData.grossSalary}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
-                    <input
-                        type="number"
-                        id="startYear"
-                        name="startYear"
-                        min="1945"
-                        step="1"
-                        value={formData.startYear}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="startYear"
+                            name="startYear"
+                            min="1945"
+                            step="1"
+                            value={formData.startYear}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="form-group">
                     <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
-                    <input
-                        type="number"
-                        id="plannedRetirementYear"
-                        name="plannedRetirementYear"
-                        min={defaultRetirementYear || currentYear} 
-                        step="1"
-                        value={formData.plannedRetirementYear}
-                        onChange={handleChange}
-                        required
-                    />
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="plannedRetirementYear"
+                            name="plannedRetirementYear"
+                            min={defaultRetirementYear || currentYear} 
+                            step="1"
+                            value={formData.plannedRetirementYear}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
                     {defaultRetirementYear && (
                         <p className="form-hint">
                             * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
