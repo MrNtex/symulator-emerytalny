@@ -74,3 +74,30 @@ export function calculateRealRent(params: CalculationParams): number {
   
   return Math.round(totalRent * 100) / 100;
 }
+
+// Redukcja emerytury z powodu chorób
+export function calculateSickDaysImpact(params: CalculationParams, averageSickDaysPerYear: number = 34): number {
+  const { monthlyIncome, yearWorkStart, yearRetirement } = params;
+  
+  if (yearWorkStart >= yearRetirement) {
+    throw new Error('Work start year must be before retirement year');
+  }
+  
+  if (monthlyIncome <= 0) {
+    throw new Error('Monthly income must be positive');
+  }
+  
+  const totalWorkYears = yearRetirement - yearWorkStart;
+  const totalSickDays = totalWorkYears * averageSickDaysPerYear;
+  
+  const workingDaysPerMonth = 22;
+  const dailyIncome = monthlyIncome / workingDaysPerMonth;
+  
+  const dailyContribution = dailyIncome * contributionRate;
+  const pensionReduction = totalSickDays * dailyContribution;
+  
+  const fullPension = calculateRealRent(params);
+  const adjustedPension = fullPension - pensionReduction;
+  
+  return Math.round(adjustedPension * 100) / 100;
+}
