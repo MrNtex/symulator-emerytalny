@@ -12,7 +12,7 @@ import {
   calculateFinalSalary
 } from '@/calculations/calculateRent'
 import './ResultModal.css'
-
+import { useRouter } from 'next/navigation';
 const mapGender = (sex: Gender): 'male' | 'female' => {
   return sex === 'Mężczyzna' ? 'male' : 'female';
 };
@@ -23,7 +23,7 @@ const getRetirementAge = (gender: 'male' | 'female') => {
 
 const ResultModal = () => {
   const { user } = useUser();
-  
+  const router = useRouter();
   if (!user) {
     return (
       <div className="result-container">
@@ -161,7 +161,7 @@ const ResultModal = () => {
 
       <div className="action-buttons">
         <button className="btn-secondary" onClick={() => window.history.back()}>Zmień parametry</button>
-        <button className="btn-primary">Zaawansowana symulacja</button>
+        <button className="btn-primary" onClick={() => router.push('/dashboard')}>Zaawansowana symulacja</button>
         <button className="btn-success">Pobierz raport</button>
       </div>
     </div>

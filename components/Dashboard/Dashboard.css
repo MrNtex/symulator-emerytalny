@@ -97,6 +97,11 @@
     font-size: 1.5em;
     font-weight: 700;
   }
+
+  .add-event-buttons {
+    display: flex;
+    gap: 12px;
+  }
   
   .add-event-btn {
     padding: 10px 20px;
@@ -108,14 +113,22 @@
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
   }
-  
+
   .add-event-btn:hover {
     background-color: #008536;
     transform: translateY(-1px);
   }
-  
+
   .add-event-btn:active {
     transform: translateY(0);
+  }
+
+  .add-event-btn.sickleave-btn {
+    background-color: #f59e0b;
+  }
+
+  .add-event-btn.sickleave-btn:hover {
+    background-color: #d97706;
   }
   
   .timeline-container {
@@ -202,6 +215,17 @@
     left: 0;
     right: 0;
     height: 100%;
+  }
+
+  .timeline-sick-leave-bar {
+    position: absolute;
+    top: 50%;
+    height: 20px;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    border-radius: 4px;
+    z-index: 1;
+    pointer-events: none;
   }
   
   .timeline-event {
@@ -486,6 +510,15 @@
       flex-direction: column;
       gap: 16px;
       align-items: flex-start;
+    }
+
+    .add-event-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .add-event-btn {
+      width: 100%;
     }
   
     .controls-grid {

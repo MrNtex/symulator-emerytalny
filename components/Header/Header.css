@@ -18,6 +18,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.zus-logo:hover {
+    opacity: 0.8;
 }
 
 .zus-logo-image {
