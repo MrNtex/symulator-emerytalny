@@ -1,6 +1,10 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useEffect, useRef } from 'react';
+=======
+import { useState } from 'react';
+>>>>>>> 7d46c04e1b9aed075f961015453d8d8bb5c6ba98
 import './Dashboard.css';
 
 interface TimelineEvent {
@@ -113,7 +117,11 @@ const Dashboard = () => {
             </button>
           </div>
 
+<<<<<<< HEAD
           <div className="timeline-container" ref={timelineRef}>
+=======
+          <div className="timeline-container">
+>>>>>>> 7d46c04e1b9aed075f961015453d8d8bb5c6ba98
             <div className="timeline-track">
               <div className="timeline-line"></div>
               <div className="timeline-markers">
@@ -132,6 +140,7 @@ const Dashboard = () => {
                 {events.map((event) => {
                   const yearIndex = years.indexOf(event.year);
                   const leftPosition = (yearIndex / (years.length - 1)) * 100;
+<<<<<<< HEAD
                   
                   const isNearLeft = leftPosition < 10;
                   const isNearRight = leftPosition > 90;
@@ -141,12 +150,21 @@ const Dashboard = () => {
                     borderColor: getEventColor(event.type),
                     transform: baseTransform,
                   };
+=======
+>>>>>>> 7d46c04e1b9aed075f961015453d8d8bb5c6ba98
 
                   return (
                     <div
                       key={event.id}
                       className="timeline-event"
+<<<<<<< HEAD
                       style={eventStyle}
+=======
+                      style={{
+                        left: `${leftPosition}%`,
+                        borderColor: getEventColor(event.type),
+                      }}
+>>>>>>> 7d46c04e1b9aed075f961015453d8d8bb5c6ba98
                     >
                       <button
                         className="event-delete"
