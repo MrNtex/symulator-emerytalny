@@ -4,7 +4,11 @@ import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
 import { useRouter } from 'next/navigation';
 import './UserForm.css';
+<<<<<<< HEAD
 import { useUser, Gender } from '@/context/UserContext';
+=======
+import {useUser, Gender} from '@/context/UserContext';
+>>>>>>> 67a19451b5f35102a6fc7517eb22efc42ef3983f
 
 interface RetirementData {
   age: number | '';
