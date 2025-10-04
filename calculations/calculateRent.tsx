@@ -306,3 +306,32 @@ export function calculateRetirementStep(params: CalculationParams, ifSickDays: b
   
   return Math.round(retirementStep * 100) / 10000;
 }
+
+export function calculateDifference(params: CalculationParams, ifSickDays: boolean = false, requiredPension: number): number {
+    const { monthlyIncome, yearWorkStart, yearRetirement, gender } = params;
+    if (requiredPension <= 0) {
+      throw new Error('Required pension must be positive');
+    }
+    if (yearWorkStart >= yearRetirement) {
+      throw new Error('Work start year must be before retirement year');
+    }
+    if (monthlyIncome <= 0) {
+      throw new Error('Monthly income must be positive');
+    }
+    let currentPension = 0;
+    if (ifSickDays) {
+      currentPension = calculateSickDaysImpact(params);
+    } else {
+      currentPension = calculateRealPension(params);
+    }
+    let difference = requiredPension - currentPension;
+    let years = 0;
+    let age = gender === 'male' ? 65 : 60;
+    while (difference > 0) {
+      currentPension  = calculateDelayedRetirementRent(params, age);
+      difference = requiredPension - currentPension;
+      age++;
+      years++;
+    }
+    return years;
+  }
