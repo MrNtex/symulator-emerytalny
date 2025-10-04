@@ -140,7 +140,7 @@ const Dashboard = () => {
       case 'salary':
         return '#00993F';
       case 'sickLeave':
-        return '#dc2626';
+        return '#f59e0b';
       case 'subAccountDeposit':
         return '#2563eb';
       default:
