@@ -7,10 +7,6 @@ export default function Home() {
   return (
     <div>
       <UserForm/>
-      <h1 className="text-xl font-bold mb-4">
-        Polish ZUS Rent Distribution – March 2024
-      </h1>
-      <RentDistributionChart userRent={userRent} />
     </div>
   );
 }
