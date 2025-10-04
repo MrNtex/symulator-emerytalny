@@ -30,11 +30,12 @@
     position: relative;
 } 
  
-.retirement-form label { 
-    color: #00416E; 
-    display: block; 
-    font-weight: 600; 
-    margin-bottom: 6px; 
+.retirement-form label {
+    color: #00416E;
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    position: relative;
 } 
  
 .retirement-form input[type="number"], 
@@ -138,7 +139,67 @@
     transform: translateY(-1px); 
 } 
  
-.retirement-form button[type="submit"]:active { 
-    transform: translateY(0); 
-    background-color: #00732f; 
+.retirement-form button[type="submit"]:active {
+    transform: translateY(0);
+    background-color: #00732f;
+}
+
+.tooltip-wrapper {
+    display: inline-block;
+    position: relative;
+    margin-left: 6px;
+}
+
+.tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #00993F;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: help;
+    transition: background-color 0.2s ease;
+}
+
+.tooltip-icon:hover {
+    background-color: #00416E;
+}
+
+.tooltip-text {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #00416E;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: normal;
+    white-space: nowrap;
+    z-index: 100;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #00416E transparent transparent transparent;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
 }

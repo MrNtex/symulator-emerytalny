@@ -128,7 +128,7 @@ const UserForm: React.FC = () => {
 };
 
     return (
-        <Form action={(() => {}) as any}
+        <Form action={() => {}}
             onSubmit={handleSubmit} 
             style={{ 
                 maxWidth: '400px', 
@@ -141,7 +141,13 @@ const UserForm: React.FC = () => {
             <h2>Symulacja Emerytury</h2>
 
                 <div className="form-group">
-                    <label htmlFor="age">Wiek (lata): *</label>
+                    <label htmlFor="age">
+                        Wiek (lata): *
+                        <span className="tooltip-wrapper">
+                            <span className="tooltip-icon">?</span>
+                            <span className="tooltip-text">Podaj swój aktualny wiek w pełnych latach (np. 35)</span>
+                        </span>
+                    </label>
                     <div className="number-input-wrapper">
                         <input
                             type="number"
@@ -161,7 +167,13 @@ const UserForm: React.FC = () => {
                 </div>
 
             <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="gender">Płeć: *</label>
+                <label htmlFor="gender">
+                    Płeć: *
+                    <span className="tooltip-wrapper">
+                        <span className="tooltip-icon">?</span>
+                        <span className="tooltip-text">Wybierz swoją płeć - wpływa na wiek emerytalny</span>
+                    </span>
+                </label>
                 <select
                     id="gender"
                     name="gender"
@@ -178,7 +190,13 @@ const UserForm: React.FC = () => {
 
 <<<<<<< HEAD
                 <div className="form-group">
-                    <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
+                    <label htmlFor="grossSalary">
+                        Wysokość wynagrodzenia brutto (PLN): *
+                        <span className="tooltip-wrapper">
+                            <span className="tooltip-icon">?</span>
+                            <span className="tooltip-text">Podaj miesięczne wynagrodzenie brutto w PLN (np. 5000)</span>
+                        </span>
+                    </label>
                     <div className="number-input-wrapper">
                         <input
                             type="number"
@@ -198,7 +216,13 @@ const UserForm: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
+                    <label htmlFor="startYear">
+                        Rok rozpoczęcia pracy: *
+                        <span className="tooltip-wrapper">
+                            <span className="tooltip-icon">?</span>
+                            <span className="tooltip-text">Podaj rok, w którym rozpocząłeś/rozpoczęłaś pierwszą pracę (np. 2010)</span>
+                        </span>
+                    </label>
                     <div className="number-input-wrapper">
                         <input
                             type="number"
@@ -218,7 +242,13 @@ const UserForm: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
+                    <label htmlFor="plannedRetirementYear">
+                        Planowany rok zakończenia aktywności: *
+                        <span className="tooltip-wrapper">
+                            <span className="tooltip-icon">?</span>
+                            <span className="tooltip-text">Podaj rok, w którym planujesz przejść na emeryturę (np. 2050)</span>
+                        </span>
+                    </label>
                     <div className="number-input-wrapper">
                         <input
                             type="number"
