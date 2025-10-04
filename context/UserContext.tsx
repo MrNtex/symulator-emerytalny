@@ -1,9 +1,14 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
 
+export type Gender = 'Kobieta' | 'Mężczyzna';
+
 type User = {
-  name: string;
-  email: string;
+  age: number,
+  sex: Gender,
+  GrossSalary: number,
+  StartYear: number,
+  PlannedRetirementYear: number
 };
 
 type UserContextType = {

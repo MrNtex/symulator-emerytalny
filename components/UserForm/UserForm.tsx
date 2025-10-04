@@ -1,12 +1,14 @@
 'use client'
-
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
+import './UserForm.css';
+import {useUser, UserProvider, Gender} from '@/context/UserContext';
+
 interface RetirementData {
     age: number | ''; 
     gender: 'Kobieta' | 'Mężczyzna' | ''; 
     grossSalary: number | ''; 
-    startYear: number | ''; 
+    startYear: number; 
     plannedRetirementYear: number | ''; 
 }
 
@@ -14,15 +16,17 @@ const RETIREMENT_AGE_WOMAN = 60;
 const RETIREMENT_AGE_MAN = 65;
 
 const UserForm: React.FC = () => {
-    const [formData, setFormData] = useState<RetirementData>({
-        age: '',
-        gender: '',
-        grossSalary: '',
-        startYear: new Date().getFullYear(),
-        plannedRetirementYear: '',
+    const {setUser, user} = useUser();
+    const currentYear = new Date().getFullYear();
+    const initialStartYear = user?.StartYear ?? currentYear; 
+     const [formData, setFormData] = useState<RetirementData>({
+        age: user?.age ?? '' as number | '',
+        gender: user?.sex ?? '' as Gender | '',
+        grossSalary: user?.GrossSalary ?? '' as number | '',
+        startYear: initialStartYear,
+        plannedRetirementYear: user?.PlannedRetirementYear ?? '' as number | '',
     });
 
-    const currentYear = new Date().getFullYear();
     const lastDefaultYear = useRef<number | ''>('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -73,17 +77,51 @@ const UserForm: React.FC = () => {
 
     },
     [defaultRetirementYear, formData.plannedRetirementYear]);
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
-        if (isFormValid) {
-            console.log("Dane gotowe do symulacji:", formData);
-            alert("Formularz wysłany. Sprawdź konsolę, aby zobaczyć dane.");
-        } else {
-            alert("Proszę wypełnić wszystkie obowiązkowe pola.");
+
+    React.useEffect(() => {
+        const validData = {
+            age: formData.age,
+            sex: formData.gender,
+            GrossSalary: formData.grossSalary,
+            StartYear: formData.startYear,
+            PlannedRetirementYear: formData.plannedRetirementYear
+        };
+
+        const allFieldsValid = Object.values(validData).every(value => 
+            value !== '' && value !== null && value !== undefined
+        );
+
+        if (allFieldsValid) {
+            setUser({
+                age: validData.age as number,
+                sex: validData.sex as Gender,
+                GrossSalary: validData.GrossSalary as number,
+                StartYear: validData.StartYear as number,
+                PlannedRetirementYear: validData.PlannedRetirementYear as number
+            });
+            console.log("Dane zapisane w kontekście automatycznie:", validData);
         }
-    };
+    }, [formData, setUser])
+
+    const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
+    if (isFormValid) {
+
+    setUser({
+        age: formData.age as number,
+        sex: formData.gender as Gender,
+        GrossSalary: formData.grossSalary as number,
+        StartYear: formData.startYear as number,
+        PlannedRetirementYear: formData.plannedRetirementYear as number
+    });
+        console.log("Dane gotowe do symulacji:", formData);
+        alert("Formularz wysłany i zapisany w kontekście!");
+    } else {
+        alert("Proszę wypełnić wszystkie obowiązkowe pola.");
+    }
+};
 
     return (
         <Form action={(() => {}) as any}
@@ -136,7 +174,7 @@ const UserForm: React.FC = () => {
                     id="grossSalary"
                     name="grossSalary"
                     min="1000"
-                    step="0.01"
+                    step="500"
                     value={formData.grossSalary}
                     onChange={handleChange}
                     required
@@ -150,8 +188,7 @@ const UserForm: React.FC = () => {
                     type="number"
                     id="startYear"
                     name="startYear"
-                    min="1950"
-                    max={currentYear}
+                    min="1945"
                     step="1"
                     value={formData.startYear}
                     onChange={handleChange}
@@ -167,7 +204,6 @@ const UserForm: React.FC = () => {
                     id="plannedRetirementYear"
                     name="plannedRetirementYear"
                     min={defaultRetirementYear || currentYear} 
-                    max={currentYear + 50}
                     step="1"
                     value={formData.plannedRetirementYear}
                     onChange={handleChange}
