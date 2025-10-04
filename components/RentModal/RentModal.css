@@ -52,6 +52,12 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.retirement-input::-webkit-outer-spin-button,
+.retirement-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .retirement-input:focus {
   outline: none;
   border-color: #15803d; 

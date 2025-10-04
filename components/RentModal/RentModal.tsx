@@ -42,7 +42,7 @@
                 value={retirementAmount}
                 onChange={(e) => setRetirementAmount(e.target.value)}
               />
-              <span className="currency-label">PLN/mies.</span>
+              <span className="currency-label">zł/mies.</span>
             </div>
 
             <button className="simulation-button" onClick={handleSimulationClick}>
