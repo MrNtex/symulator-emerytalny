@@ -1,8 +1,8 @@
 import Image from "next/image";
-import UserForm from "@/components/UserForm";
+import RentModal from "@/components/RentModal/RentModal";
 
 export default function Home() {
   return (
-      <UserForm />
+      <RentModal/>
   );
 }
