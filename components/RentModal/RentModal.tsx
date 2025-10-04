@@ -1,11 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import './RentModal.css'
 
 const Home = () => {
   const [retirementAmount, setRetirementAmount] = useState('')
   const [funFact, setFunFact] = useState('')
+  const router = useRouter() 
 
   useEffect(() => {
     fetch('/data/funFacts.json')
@@ -20,6 +22,10 @@ const Home = () => {
       })
       .catch(() => setFunFact("Nie udało się załadować ciekawostek."))
   }, [])
+
+  const handleSimulationClick = () => {
+    router.push('/dane') 
+  }
 
   return (
     <div className='rent-modal-container'>
@@ -37,16 +43,15 @@ const Home = () => {
             />
             <span className="currency-label">PLN/mies.</span>
           </div>
-          <button className="simulation-button">
+
+          <button className="simulation-button" onClick={handleSimulationClick}>
             Przejdź do symulacji
           </button>
         </div>
 
         <div className="fun-fact-section">
           <h3 className="fun-fact-title">Czy wiesz, że...</h3>
-          <p className="fun-fact-content">
-            {funFact}
-          </p>
+          <p className="fun-fact-content">{funFact}</p>
         </div>
 
         <div className="charts-section">
