@@ -3,7 +3,7 @@ import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
 import { useRouter } from 'next/navigation';
 import './UserForm.css';
-import {useUser, UserProvider, Gender} from '@/context/UserContext';
+import {useUser, Gender} from '@/context/UserContext';
 
 interface RetirementData {
     age: number | ''; 
@@ -62,7 +62,7 @@ const UserForm: React.FC = () => {
         }
 
         return '';
-    }, [formData.age, formData.gender, currentYear]);
+    }, [formData, currentYear]);
 
     React.useEffect(() => {
         if (!defaultRetirementYear) return;

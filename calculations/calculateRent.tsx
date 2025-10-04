@@ -21,9 +21,10 @@ const lifeExpectancyData = dataLifeExpectancy as LifeExpectancyData;
 const monthsInYear = 12;
 const averageSickDaysPerYear = 34;
 const workingDaysPerMonth = 22;
+const inflationRate = 0.025;
 
 const parsePercentage = (percentageStr: string): number => {
-  return parseFloat(percentageStr.replace('%', '')) / 100;
+  return  parseFloat(percentageStr.replace('%', '')) / 100 - 1;
 };
 
 const getRetirementMonths = (gender: 'male' | 'female'): number => {
@@ -73,18 +74,17 @@ export function calculateRealPension(params: CalculationParams): number {
   
   let totalRent = 0;
   let currentIncome = monthlyIncome;
-  const inflationRate = 0.025; 
   
   for (let year = yearWorkStart; year < yearRetirement; year++) {
     const yearStr = year.toString();
     const growthRateStr = salaryGrowthData[yearStr];
     
     if (!growthRateStr) {
-      console.warn(`No growth data found for year ${year}, using 1.0 (no growth)`);
+      console.warn(`No growth data found for year ${year}, using 0.0 (no growth)`);
     }
     
-    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
-    const realGrowthRate = wageGrowthRate + inflationRate; 
+    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 0.0;
+    const realGrowthRate = wageGrowthRate; 
     
     const yearlyContribution = currentIncome * monthsInYear * contributionRate;
     totalRent += yearlyContribution;
@@ -132,26 +132,24 @@ export function calculateDelayedRetirementRent(params: CalculationParams, delaye
   if (monthlyIncome <= 0) {
     throw new Error('Monthly income must be positive');
   }
-  
-  if (delayedRetirementAge <= yearRetirement) {
-    throw new Error('Delayed retirement age must be greater than current retirement year');
+  const retirementAgeBasic = gender === 'male' ? 65 : 60;
+  if (delayedRetirementAge <= retirementAgeBasic) {
+    throw new Error('Delayed retirement age must be greater than current retirement age');
   }
   
   let totalPension = 0;
   let currentIncome = monthlyIncome;
-  const inflationRate = 0.025; 
-  const retirementAgeBasic = gender === 'male' ? 65 : 60;
   if (ifSickDays) {
-    for (let year = retirementAgeBasic; year < delayedRetirementAge; year++) {
-        const yearStr = year.toString();
+    for (let year = 0; year < delayedRetirementAge - retirementAgeBasic; year++) {
+        const yearStr = (year + yearWorkStart).toString();
         const growthRateStr = salaryGrowthData[yearStr];
     
         if (!growthRateStr) {
-            console.warn(`No growth data found for year ${year}, using 1.0 (no growth)`);
+            console.warn(`No growth data found for year ${year + yearWorkStart}, using 0.0 (no growth)`);
         }
     
-        const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
-        const realGrowthRate = wageGrowthRate + inflationRate; 
+        const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 0.0;
+        const realGrowthRate = wageGrowthRate; 
     
         const dailyIncome = currentIncome / workingDaysPerMonth;
         const dailyContribution = dailyIncome * contributionRate;
@@ -163,16 +161,16 @@ export function calculateDelayedRetirementRent(params: CalculationParams, delaye
         currentIncome *= (1 + realGrowthRate);
     }
   } else {
-    for (let year = retirementAgeBasic; year < delayedRetirementAge; year++) {
-        const yearStr = year.toString();
+        for (let year = 0; year < delayedRetirementAge - retirementAgeBasic; year++) {
+        const yearStr = (year + yearWorkStart).toString();
         const growthRateStr = salaryGrowthData[yearStr];
     
         if (!growthRateStr) {
-            console.warn(`No growth data found for year ${year}, using 1.0 (no growth)`);
+            console.warn(`No growth data found for year ${year + yearWorkStart}, using 0.0 (no growth)`);
         }
     
-        const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
-        const realGrowthRate = wageGrowthRate + inflationRate; 
+        const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 0.0;
+        const realGrowthRate = wageGrowthRate; 
     
         const yearlyContribution = currentIncome * monthsInYear * contributionRate;
         totalPension += yearlyContribution;
@@ -205,7 +203,6 @@ export function calculateFutureAveragePension(
   }
   
   let futurePension = currentAveragePension;
-  const inflationRate = 0.025;
   
   for (let year = 0; year < yearsUntilRetirement; year++) {
     const currentYear = startYear + year;
@@ -213,10 +210,10 @@ export function calculateFutureAveragePension(
     const growthRateStr = salaryGrowthData[yearStr];
     
     if (!growthRateStr) {
-      console.warn(`No growth data found for year ${currentYear}, using 1.0 (no growth)`);
+      console.warn(`No growth data found for year ${currentYear}, using 0.0 (no growth)`);
     }
     
-    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
+    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 0.0;
     const realGrowthRate = wageGrowthRate + inflationRate;
     
     futurePension *= (1 + realGrowthRate);
@@ -247,10 +244,10 @@ export function calculateFinalSalary(
     const growthRateStr = salaryGrowthData[yearStr];
     
     if (!growthRateStr) {
-      console.warn(`No growth data found for year ${currentYear}, using 1.0 (no growth)`);
+      console.warn(`No growth data found for year ${currentYear}, using 0.0 (no growth)`);
     }
     
-    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 1.0;
+    const wageGrowthRate = growthRateStr ? parsePercentage(growthRateStr) : 0.0;
     const realGrowthRate = wageGrowthRate;
     
     currentSalary *= (1 + realGrowthRate);
@@ -269,7 +266,6 @@ export function calculateMonthlyPension(totalPension: number, retirementAge: num
     alert(retirementAge);
     throw new Error('Retirement age must be between 60 and 90');
   }
-  
   const lifeExpectancyMonths = lifeExpectancyData[retirementAge.toString()];
   
   if (!lifeExpectancyMonths) {
@@ -282,9 +278,12 @@ export function calculateMonthlyPension(totalPension: number, retirementAge: num
 }
 
 //stopa zastąpienia w % (ile ostatniej pensji to emerytura)
-export function calculateRetirementStep(params: CalculationParams, ifSickDays: boolean = false, ifDelayedRetirement: boolean = false): number {
-  const { monthlyIncome, yearWorkStart, yearRetirement } = params;
-  
+export function calculateRetirementStep(params: CalculationParams, ifSickDays: boolean = false, ifDelayedRetirement: boolean = false, delayedRetirementAge: number = 0): number {
+  const { monthlyIncome, yearWorkStart, yearRetirement, gender } = params;
+  let age = gender === 'male' ? 65 : 60;
+  if (ifDelayedRetirement) {
+    age = delayedRetirementAge;
+  }
   if (yearWorkStart >= yearRetirement) {
     throw new Error('Work start year must be before retirement year');
   }
@@ -297,14 +296,45 @@ export function calculateRetirementStep(params: CalculationParams, ifSickDays: b
   if (ifSickDays) {
     totalPension = calculateSickDaysImpact(params);
   } else if (ifDelayedRetirement) {
-    totalPension = calculateDelayedRetirementRent(params, yearRetirement);
+    totalPension = calculateDelayedRetirementRent(params, delayedRetirementAge);
   } else {
     totalPension = calculateRealPension(params);
   }
   
-  const retirementAge = params.gender === 'male' ? 65 : 60; // Get the correct age
-  const monthlyPension = calculateMonthlyPension(totalPension, retirementAge); 
-  const retirementStep = monthlyPension/lastSalary;
-  
-  return Math.round(retirementStep * 100) / 10000;
+  const monthlyPension = calculateMonthlyPension(totalPension, age);
+  const retirementStep = monthlyPension / lastSalary;
+
+  return Math.round(retirementStep * 100);
 }
+
+export function calculateDifference(params: CalculationParams, ifSickDays: boolean = false, requiredPension: number): number {
+    const { monthlyIncome, yearWorkStart, yearRetirement, gender } = params;
+    if (requiredPension <= 0) {
+      throw new Error('Required pension must be positive');
+    }
+    if (yearWorkStart >= yearRetirement) {
+      throw new Error('Work start year must be before retirement year');
+    }
+    if (monthlyIncome <= 0) {
+      throw new Error('Monthly income must be positive');
+    }
+    let currentTotalPension = 0;
+    if (ifSickDays) {
+      currentTotalPension = calculateSickDaysImpact(params);
+    } else {
+      currentTotalPension = calculateRealPension(params);
+    }
+    let age = gender === 'male' ? 65 : 60;
+    let currentPension = calculateMonthlyPension(currentTotalPension, age);
+    let difference = requiredPension - currentPension;
+    let years = 0;
+    age++;
+    while (difference > 0) {
+      currentTotalPension  = calculateDelayedRetirementRent(params, age);
+      currentPension = calculateMonthlyPension(currentTotalPension, age);
+      difference = requiredPension - currentPension;
+      age++;
+      years++;
+    }
+    return years;
+  }
