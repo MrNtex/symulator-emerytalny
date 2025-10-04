@@ -1,8 +1,9 @@
-import Image from "next/image";
-import RentModal from "@/components/RentModal/RentModal";
+import UserForm from '@/components/UserForm/UserForm';
 
 export default function Home() {
+  const userRent = 1500;
+
   return (
-      <RentModal/>
+    <UserForm />
   );
 }
