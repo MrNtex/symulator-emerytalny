@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
+import { useRouter } from 'next/navigation';
 import './UserForm.css';
 import {useUser, UserProvider, Gender} from '@/context/UserContext';
 
@@ -16,6 +17,7 @@ const RETIREMENT_AGE_WOMAN = 60;
 const RETIREMENT_AGE_MAN = 65;
 
 const UserForm: React.FC = () => {
+    const router = useRouter();
     const {setUser, user} = useUser();
     const currentYear = new Date().getFullYear();
     const initialStartYear = user?.StartYear ?? currentYear; 
@@ -118,6 +120,7 @@ const UserForm: React.FC = () => {
     });
         console.log("Dane gotowe do symulacji:", formData);
         alert("Formularz wysłany i zapisany w kontekście!");
+        router.push('/wyniki'); 
     } else {
         alert("Proszę wypełnić wszystkie obowiązkowe pola.");
     }
@@ -217,7 +220,7 @@ const UserForm: React.FC = () => {
                 )}
             </div>
 
-            <button type="submit" style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+            <button type="submit" onClick={handleSubmit} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                 Symuluj Emeryturę
             </button>
         </Form>
