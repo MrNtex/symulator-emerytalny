@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useMemo, useRef } from 'react';
 import Form from 'next/form';
+import { useRouter } from 'next/navigation';
 import './UserForm.css';
 import {useUser, UserProvider, Gender} from '@/context/UserContext';
 
@@ -16,6 +17,7 @@ const RETIREMENT_AGE_WOMAN = 60;
 const RETIREMENT_AGE_MAN = 65;
 
 const UserForm: React.FC = () => {
+    const router = useRouter();
     const {setUser, user} = useUser();
     const currentYear = new Date().getFullYear();
     const initialStartYear = user?.StartYear ?? currentYear; 
@@ -103,6 +105,7 @@ const UserForm: React.FC = () => {
         }
     }, [formData, setUser])
 
+
     const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -118,6 +121,7 @@ const UserForm: React.FC = () => {
     });
         console.log("Dane gotowe do symulacji:", formData);
         alert("Formularz wysłany i zapisany w kontekście!");
+        router.push('/wyniki'); 
     } else {
         alert("Proszę wypełnić wszystkie obowiązkowe pola.");
     }
@@ -136,20 +140,25 @@ const UserForm: React.FC = () => {
         >
             <h2>Symulacja Emerytury</h2>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="age">Wiek (lata): *</label>
-                <input
-                    type="number"
-                    id="age"
-                    name="age"
-                    min="18"
-                    max="100"
-                    value={formData.age}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-            </div>
+                <div className="form-group">
+                    <label htmlFor="age">Wiek (lata): *</label>
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="age"
+                            name="age"
+                            min="18"
+                            max="100"
+                            value={formData.age}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
+                </div>
 
             <div style={{ marginBottom: '15px' }}>
                 <label htmlFor="gender">Płeć: *</label>
@@ -167,57 +176,72 @@ const UserForm: React.FC = () => {
                 </select>
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
-                <input
-                    type="number"
-                    id="grossSalary"
-                    name="grossSalary"
-                    min="1000"
-                    step="500"
-                    value={formData.grossSalary}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-            </div>
+                <div className="form-group">
+                    <label htmlFor="grossSalary">Wysokość wynagrodzenia brutto (PLN): *</label>
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="grossSalary"
+                            name="grossSalary"
+                            min="1000"
+                            step="500"
+                            value={formData.grossSalary}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
+                </div>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
-                <input
-                    type="number"
-                    id="startYear"
-                    name="startYear"
-                    min="1945"
-                    step="1"
-                    value={formData.startYear}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-            </div>
+                <div className="form-group">
+                    <label htmlFor="startYear">Rok rozpoczęcia pracy: *</label>
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="startYear"
+                            name="startYear"
+                            min="1945"
+                            step="1"
+                            value={formData.startYear}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
+                </div>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
-                <input
-                    type="number"
-                    id="plannedRetirementYear"
-                    name="plannedRetirementYear"
-                    min={defaultRetirementYear || currentYear} 
-                    step="1"
-                    value={formData.plannedRetirementYear}
-                    onChange={handleChange}
-                    required
-                    style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-                />
-                {defaultRetirementYear && (
-                    <p style={{ fontSize: '0.8em', color: '#555' }}>
-                        * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
-                    </p>
-                )}
-            </div>
+                <div className="form-group">
+                    <label htmlFor="plannedRetirementYear">Planowany rok zakończenia aktywności: *</label>
+                    <div className="number-input-wrapper">
+                        <input
+                            type="number"
+                            id="plannedRetirementYear"
+                            name="plannedRetirementYear"
+                            min={defaultRetirementYear || currentYear} 
+                            step="1"
+                            value={formData.plannedRetirementYear}
+                            onChange={handleChange}
+                            required
+                        />
+                        <div className="number-input-arrows">
+                            <div className="arrow-up"></div>
+                            <div className="arrow-down"></div>
+                        </div>
+                    </div>
+                    {defaultRetirementYear && (
+                        <p className="form-hint">
+                            * Obowiązkowy wiek emerytalny: {defaultRetirementYear}.
+                        </p>
+                    )}
+                </div>
 
-            <button type="submit" style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+            <button type="submit" onClick={handleSubmit} style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
                 Symuluj Emeryturę
             </button>
         </Form>

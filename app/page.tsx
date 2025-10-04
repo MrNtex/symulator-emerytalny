@@ -1,8 +1,9 @@
-import Image from "next/image";
-import RentModal from "@/components/RentModal/RentModal";
+import RentModal from '@/components/RentModal/RentModal';
 
 export default function Home() {
+  const userRent = 1500;
+
   return (
-      <RentModal/>
+    <RentModal />
   );
 }

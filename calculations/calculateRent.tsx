@@ -262,6 +262,10 @@ export function calculateMonthlyPension(totalPension: number, retirementAge: num
     throw new Error('Total pension must be positive');
   }
   
+  if (retirementAge < 60 || retirementAge > 90) {
+    alert(retirementAge);
+    throw new Error('Retirement age must be between 60 and 90');
+  }
   const lifeExpectancyMonths = lifeExpectancyData[retirementAge.toString()];
   
   if (!lifeExpectancyMonths) {
@@ -298,8 +302,8 @@ export function calculateRetirementStep(params: CalculationParams, ifSickDays: b
   }
   
   const monthlyPension = calculateMonthlyPension(totalPension, age);
-  const retirementStep = monthlyPension/lastSalary;
-  
+  const retirementStep = monthlyPension / lastSalary;
+
   return Math.round(retirementStep * 100);
 }
 
