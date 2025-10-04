@@ -19,9 +19,9 @@ interface PensionDistributionChartProps {
 
 interface PensionDataPoint {
   range: string;
-  value: number; // percentage of people in this bracket
+  value: number;
   description: string;
-  midpoint: number; // used for adjusting the reference line
+  midpoint: number;
 }
 
 const pensionData: PensionDataPoint[] = pensionDataJson;
@@ -30,25 +30,41 @@ const PensionDistributionChart: React.FC<PensionDistributionChartProps> = ({
   userRent,
 }) => {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={360}>
       <BarChart
         data={pensionData}
-        margin={{ top: 20, right: 40, bottom: 20, left: 0 }}
+        margin={{ top: 10, right: 30, bottom: 25, left: 0 }}
       >
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
         <XAxis
-            dataKey="midpoint"
-            type="number"
-            domain={[0, 8000]}
-            tickFormatter={(val) => {
-                const bracket = pensionData.find(
-                (d) => d.midpoint === val
-                );
-                return bracket?.range || `${val} zł`;
-            }}
+          dataKey="midpoint"
+          type="number"
+          domain={[0, 8000]}
+          tick={{ fontSize: 11, fill: "#00416E" }}
+          tickFormatter={(val) => {
+            const bracket = pensionData.find((d) => d.midpoint === val);
+            return bracket?.range || `${val} zł`;
+          }}
+          label={{
+            value: "Przedziały emerytur (zł)",
+            position: "bottom",
+            offset: 0,
+            fontSize: 12,
+            fill: "#00416E",
+          }}
         />
         <YAxis
+          tick={{ fontSize: 11, fill: "#00416E" }}
           tickFormatter={(val) => `${val}%`}
           domain={[0, Math.max(...pensionData.map((d) => d.value)) + 5]}
+          label={{
+            value: "Odsetek emerytów (%)",
+            angle: -90,
+            position: "insideLeft",
+            offset: 10,
+            fontSize: 12,
+            fill: "#00416E",
+          }}
         />
         <Tooltip
           content={({ active, payload }) => {
@@ -58,11 +74,14 @@ const PensionDistributionChart: React.FC<PensionDistributionChartProps> = ({
                 <div
                   style={{
                     backgroundColor: "white",
-                    padding: "10px",
+                    padding: "8px 10px",
                     border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    color: "#00416E",
                   }}
                 >
-                  <strong>{dataPoint.range} zł</strong>
+                  <strong style={{ color: "#00993F" }}>{dataPoint.range} zł</strong>
                   <div>{dataPoint.description}</div>
                   <div>Odsetek: {dataPoint.value}%</div>
                 </div>
@@ -71,17 +90,24 @@ const PensionDistributionChart: React.FC<PensionDistributionChartProps> = ({
             return null;
           }}
         />
-        <Bar dataKey="value" fill="#84d88fff" />
+        <Bar dataKey="value" fill="#00993F" radius={[4, 4, 0, 0]} />
         <ReferenceLine
           x={userRent}
-          stroke="green"
+          stroke="#FFBB00"
           strokeWidth={2}
           label={{
-            position: "top",
+            position: "insideTop",
+            offset: 14,
             value: `Twoja emerytura: ${userRent} zł`,
-            fill: "green",
+            fill: "#00416E",
+            fontSize: 12,
+            fontWeight: 700,
+            textAnchor: "middle",
+            style: { textShadow: "1px 1px 2px rgba(255,255,255,0.9)" },
           }}
         />
+
+
       </BarChart>
     </ResponsiveContainer>
   );
