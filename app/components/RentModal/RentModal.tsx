@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import './RentModal.css'
-import Header from '../Header/Header'
 
 const Home = () => {
   const [retirementAmount, setRetirementAmount] = useState('')
