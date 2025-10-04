@@ -3,21 +3,39 @@
 import { useState, useEffect, useRef } from 'react';
 import './Dashboard.css';
 
-interface TimelineEvent {
+interface SalaryChangeEvent {
   id: string;
-  year: number;
-  type: 'salary' | 'sickLeave' | 'indexation' | 'other';
+  type: 'salary';
+  date: string;
+  amount: number;
   title: string;
-  amount?: number;
-  duration?: number;
 }
+
+interface SickLeaveEvent {
+  id: string;
+  type: 'sickLeave';
+  startDate: string;
+  endDate: string;
+  title: string;
+}
+
+type TimelineEvent = SalaryChangeEvent | SickLeaveEvent;
 
 const Dashboard = () => {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [isAddingEvent, setIsAddingEvent] = useState(false);
-  const [newEvent, setNewEvent] = useState<Partial<TimelineEvent>>({
-    type: 'salary',
-    year: new Date().getFullYear(),
+  const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
+  const [isAddingSickLeave, setIsAddingSickLeave] = useState(false);
+
+  const [salaryChange, setSalaryChange] = useState({
+    date: new Date().toISOString().split('T')[0],
+    amount: 0,
+    title: '',
+  });
+
+  const [sickLeave, setSickLeave] = useState({
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    title: '',
   });
   const timelineRef = useRef<HTMLDivElement>(null);
 
@@ -41,19 +59,41 @@ const Dashboard = () => {
     }
   }, [currentYear, years]);
 
-  const handleAddEvent = () => {
-    if (newEvent.year && newEvent.title) {
-      const event: TimelineEvent = {
+  const handleAddSalaryChange = () => {
+    if (salaryChange.date && salaryChange.amount && salaryChange.title) {
+      const event: SalaryChangeEvent = {
         id: Date.now().toString(),
-        year: newEvent.year,
-        type: newEvent.type as TimelineEvent['type'],
-        title: newEvent.title,
-        amount: newEvent.amount,
-        duration: newEvent.duration,
+        type: 'salary',
+        date: salaryChange.date,
+        amount: salaryChange.amount,
+        title: salaryChange.title,
       };
       setEvents([...events, event]);
-      setIsAddingEvent(false);
-      setNewEvent({ type: 'salary', year: currentYear });
+      setIsAddingSalaryChange(false);
+      setSalaryChange({
+        date: new Date().toISOString().split('T')[0],
+        amount: 0,
+        title: '',
+      });
+    }
+  };
+
+  const handleAddSickLeave = () => {
+    if (sickLeave.startDate && sickLeave.endDate && sickLeave.title) {
+      const event: SickLeaveEvent = {
+        id: Date.now().toString(),
+        type: 'sickLeave',
+        startDate: sickLeave.startDate,
+        endDate: sickLeave.endDate,
+        title: sickLeave.title,
+      };
+      setEvents([...events, event]);
+      setIsAddingSickLeave(false);
+      setSickLeave({
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date().toISOString().split('T')[0],
+        title: '',
+      });
     }
   };
 
@@ -61,18 +101,34 @@ const Dashboard = () => {
     setEvents(events.filter(e => e.id !== id));
   };
 
-  const getEventColor = (type: TimelineEvent['type']) => {
+  const getEventColor = (type: string) => {
     switch (type) {
       case 'salary':
         return '#00993F';
       case 'sickLeave':
         return '#dc2626';
-      case 'indexation':
-        return '#2563eb';
-      case 'other':
-        return '#9333ea';
       default:
         return '#00993F';
+    }
+  };
+
+  const getEventYear = (event: TimelineEvent): number => {
+    if (event.type === 'salary') {
+      return new Date(event.date).getFullYear();
+    } else {
+      return new Date(event.startDate).getFullYear();
+    }
+  };
+
+  const getEventDateRange = (event: TimelineEvent): { start: Date; end: Date } => {
+    if (event.type === 'salary') {
+      const date = new Date(event.date);
+      return { start: date, end: date };
+    } else {
+      return {
+        start: new Date(event.startDate),
+        end: new Date(event.endDate),
+      };
     }
   };
 
@@ -105,12 +161,20 @@ const Dashboard = () => {
         <div className="timeline-section">
           <div className="timeline-header">
             <h2>Oś Czasu Wydarzeń</h2>
-            <button
-              className="add-event-btn"
-              onClick={() => setIsAddingEvent(true)}
-            >
-              + Dodaj Wydarzenie
-            </button>
+            <div className="add-event-buttons">
+              <button
+                className="add-event-btn salary-btn"
+                onClick={() => setIsAddingSalaryChange(true)}
+              >
+                + Zmiana wynagrodzenia
+              </button>
+              <button
+                className="add-event-btn sickleave-btn"
+                onClick={() => setIsAddingSickLeave(true)}
+              >
+                + Chorobowy
+              </button>
+            </div>
           </div>
 
           <div className="timeline-container" ref={timelineRef}>
@@ -130,124 +194,206 @@ const Dashboard = () => {
 
               <div className="timeline-events">
                 {events.map((event) => {
-                  const yearIndex = years.indexOf(event.year);
+                  const eventYear = getEventYear(event);
+                  const yearIndex = years.indexOf(eventYear);
                   const leftPosition = (yearIndex / (years.length - 1)) * 100;
-                  
+
                   const isNearLeft = leftPosition < 10;
                   const isNearRight = leftPosition > 90;
                   const baseTransform = isNearLeft ? 'translateX(0)' : isNearRight ? 'translateX(-100%)' : 'translateX(-50%)';
-                  const eventStyle = {
-                    left: `${leftPosition}%`,
-                    borderColor: getEventColor(event.type),
-                    transform: baseTransform,
-                  };
 
-                  return (
-                    <div
-                      key={event.id}
-                      className="timeline-event"
-                      style={eventStyle}
-                    >
-                      <button
-                        className="event-delete"
-                        onClick={() => handleDeleteEvent(event.id)}
-                      >
-                        ×
-                      </button>
-                      <div
-                        className="event-indicator"
-                        style={{ backgroundColor: getEventColor(event.type) }}
-                      ></div>
-                      <div className="event-content">
-                        <h4>{event.title}</h4>
-                        {event.amount && <p>Kwota: {event.amount.toLocaleString('pl-PL')} zł</p>}
-                        {event.duration && <p>Okres: {event.duration} dni</p>}
+                  if (event.type === 'sickLeave') {
+                    const dateRange = getEventDateRange(event);
+                    const startYear = dateRange.start.getFullYear();
+                    const endYear = dateRange.end.getFullYear();
+                    const startIndex = years.indexOf(startYear);
+                    const endIndex = years.indexOf(endYear);
+                    const startPos = (startIndex / (years.length - 1)) * 100;
+                    const endPos = (endIndex / (years.length - 1)) * 100;
+                    const width = endPos - startPos;
+
+                    return (
+                      <div key={event.id}>
+                        <div
+                          className="timeline-sick-leave-bar"
+                          style={{
+                            left: `${startPos}%`,
+                            width: `${Math.max(width, 0.5)}%`,
+                            backgroundColor: getEventColor(event.type),
+                          }}
+                        ></div>
+                        <div
+                          className="timeline-event"
+                          style={{
+                            left: `${leftPosition}%`,
+                            borderColor: getEventColor(event.type),
+                            transform: baseTransform,
+                          }}
+                        >
+                          <button
+                            className="event-delete"
+                            onClick={() => handleDeleteEvent(event.id)}
+                          >
+                            ×
+                          </button>
+                          <div
+                            className="event-indicator"
+                            style={{ backgroundColor: getEventColor(event.type) }}
+                          ></div>
+                          <div className="event-content">
+                            <h4>{event.title}</h4>
+                            <p>{new Date(event.startDate).toLocaleDateString('pl-PL')} - {new Date(event.endDate).toLocaleDateString('pl-PL')}</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  );
+                    );
+                  } else {
+                    return (
+                      <div
+                        key={event.id}
+                        className="timeline-event"
+                        style={{
+                          left: `${leftPosition}%`,
+                          borderColor: getEventColor(event.type),
+                          transform: baseTransform,
+                        }}
+                      >
+                        <button
+                          className="event-delete"
+                          onClick={() => handleDeleteEvent(event.id)}
+                        >
+                          ×
+                        </button>
+                        <div
+                          className="event-indicator"
+                          style={{ backgroundColor: getEventColor(event.type) }}
+                        ></div>
+                        <div className="event-content">
+                          <h4>{event.title}</h4>
+                          <p>Kwota: {event.amount.toLocaleString('pl-PL')} zł</p>
+                          <p>Data: {new Date(event.date).toLocaleDateString('pl-PL')}</p>
+                        </div>
+                      </div>
+                    );
+                  }
                 })}
               </div>
             </div>
           </div>
         </div>
 
-        {isAddingEvent && (
-          <div className="modal-overlay" onClick={() => setIsAddingEvent(false)}>
+        {isAddingSalaryChange && (
+          <div className="modal-overlay" onClick={() => setIsAddingSalaryChange(false)}>
             <div className="event-modal" onClick={(e) => e.stopPropagation()}>
-              <h3>Dodaj Nowe Wydarzenie</h3>
+              <h3>Zmiana wynagrodzenia</h3>
 
               <div className="form-group">
-                <label>Typ wydarzenia</label>
-                <select
-                  value={newEvent.type}
-                  onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value as TimelineEvent['type'] })}
-                >
-                  <option value="salary">Zmiana wynagrodzenia</option>
-                  <option value="sickLeave">Zwolnienie chorobowe</option>
-                  <option value="indexation">Zmiana indeksacji</option>
-                  <option value="other">Inne</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Rok</label>
-                <input
-                  type="number"
-                  value={newEvent.year || ''}
-                  onChange={(e) => setNewEvent({ ...newEvent, year: parseInt(e.target.value) })}
-                  min={startYear}
-                  max={endYear}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Tytuł wydarzenia</label>
+                <label>Tytuł</label>
                 <input
                   type="text"
-                  value={newEvent.title || ''}
-                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  placeholder="Opisz wydarzenie"
+                  value={salaryChange.title}
+                  onChange={(e) => setSalaryChange({ ...salaryChange, title: e.target.value })}
+                  placeholder="Np. Awans, Podwyżka roczna"
                 />
               </div>
 
-              {(newEvent.type === 'salary' || newEvent.type === 'indexation') && (
-                <div className="form-group">
-                  <label>Kwota (zł)</label>
-                  <input
-                    type="number"
-                    value={newEvent.amount || ''}
-                    onChange={(e) => setNewEvent({ ...newEvent, amount: parseFloat(e.target.value) })}
-                    placeholder="0.00"
-                  />
-                </div>
-              )}
+              <div className="form-group">
+                <label>Data</label>
+                <input
+                  type="date"
+                  value={salaryChange.date}
+                  onChange={(e) => setSalaryChange({ ...salaryChange, date: e.target.value })}
+                />
+              </div>
 
-              {newEvent.type === 'sickLeave' && (
-                <div className="form-group">
-                  <label>Okres (dni)</label>
-                  <input
-                    type="number"
-                    value={newEvent.duration || ''}
-                    onChange={(e) => setNewEvent({ ...newEvent, duration: parseInt(e.target.value) })}
-                    placeholder="Liczba dni"
-                  />
-                </div>
-              )}
+              <div className="form-group">
+                <label>Wysokość wynagrodzenia (zł brutto)</label>
+                <input
+                  type="number"
+                  value={salaryChange.amount || ''}
+                  onChange={(e) => setSalaryChange({ ...salaryChange, amount: parseFloat(e.target.value) })}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
 
               <div className="modal-actions">
                 <button
                   className="cancel-btn"
                   onClick={() => {
-                    setIsAddingEvent(false);
-                    setNewEvent({ type: 'salary', year: currentYear });
+                    setIsAddingSalaryChange(false);
+                    setSalaryChange({
+                      date: new Date().toISOString().split('T')[0],
+                      amount: 0,
+                      title: '',
+                    });
                   }}
                 >
                   Anuluj
                 </button>
                 <button
                   className="confirm-btn"
-                  onClick={handleAddEvent}
-                  disabled={!newEvent.year || !newEvent.title}
+                  onClick={handleAddSalaryChange}
+                  disabled={!salaryChange.date || !salaryChange.amount || !salaryChange.title}
+                >
+                  Dodaj
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isAddingSickLeave && (
+          <div className="modal-overlay" onClick={() => setIsAddingSickLeave(false)}>
+            <div className="event-modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Zwolnienie chorobowe</h3>
+
+              <div className="form-group">
+                <label>Tytuł</label>
+                <input
+                  type="text"
+                  value={sickLeave.title}
+                  onChange={(e) => setSickLeave({ ...sickLeave, title: e.target.value })}
+                  placeholder="Np. Grypa, Rehabilitacja"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Data rozpoczęcia</label>
+                <input
+                  type="date"
+                  value={sickLeave.startDate}
+                  onChange={(e) => setSickLeave({ ...sickLeave, startDate: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Data zakończenia</label>
+                <input
+                  type="date"
+                  value={sickLeave.endDate}
+                  onChange={(e) => setSickLeave({ ...sickLeave, endDate: e.target.value })}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setIsAddingSickLeave(false);
+                    setSickLeave({
+                      startDate: new Date().toISOString().split('T')[0],
+                      endDate: new Date().toISOString().split('T')[0],
+                      title: '',
+                    });
+                  }}
+                >
+                  Anuluj
+                </button>
+                <button
+                  className="confirm-btn"
+                  onClick={handleAddSickLeave}
+                  disabled={!sickLeave.startDate || !sickLeave.endDate || !sickLeave.title}
                 >
                   Dodaj
                 </button>
