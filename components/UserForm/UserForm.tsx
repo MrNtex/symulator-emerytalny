@@ -135,7 +135,7 @@ const UserForm: React.FC = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const requiredFields = {
       age: formData.age,
@@ -148,7 +148,7 @@ const UserForm: React.FC = () => {
     const isFormValid = Object.values(requiredFields).every(value => value !== '' && value !== null && value !== undefined);
 
     if (isFormValid) {
-      setUser({
+      const userData = {
         age: formData.age as number,
         sex: formData.gender as Gender,
         GrossSalary: formData.grossSalary as number,
@@ -158,7 +158,28 @@ const UserForm: React.FC = () => {
         includeSickDays: formData.includeSickDays,
         includeDelayedRetirement: formData.includeDelayedRetirement,
         targetPension: formData.targetPension as number || undefined
-      });
+      };
+
+      setUser(userData);
+
+      try {
+        const response = await fetch('/api/save-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error('Błąd podczas zapisywania danych:', result.message);
+        }
+      } catch (error) {
+        console.error('Błąd podczas wysyłania danych:', error);
+      }
+
       router.push('/wyniki');
     } else {
       alert("Proszę wypełnić wszystkie obowiązkowe pola.");

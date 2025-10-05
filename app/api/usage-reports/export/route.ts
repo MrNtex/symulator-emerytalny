@@ -13,7 +13,12 @@ export async function GET(request: NextRequest) {
     const collection = db.collection('usage_reports');
 
     // Budowanie filtra dat
-    const filter: Record<string, any> = {};
+    interface DateFilter {
+      $gte?: string;
+      $lte?: string;
+    }
+
+    const filter: { date?: DateFilter } = {};
     if (startDate || endDate) {
       filter.date = {};
       if (startDate) filter.date.$gte = startDate;

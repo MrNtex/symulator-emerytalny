@@ -503,7 +503,7 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
     if (!user) return;
 
     try {
-      await fetch('/api/save_user', {
+      await fetch('/api/save-user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
