@@ -30,7 +30,7 @@ const PensionDistributionChart: React.FC<PensionDistributionChartProps> = ({
   userRent,
 }) => {
   return (
-    <ResponsiveContainer width="100%" height={360}>
+    <ResponsiveContainer width="100%" height={450}>
       <BarChart
         data={pensionData}
         margin={{ top: 10, right: 30, bottom: 25, left: 0 }}

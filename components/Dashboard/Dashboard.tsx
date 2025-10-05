@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useUser } from '@/context/UserContext';
 import './Dashboard.css';
+import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
 
 interface SalaryChangeEvent {
   id: string;
@@ -30,6 +32,7 @@ interface SubAccountDepositEvent {
 type TimelineEvent = SalaryChangeEvent | SickLeaveEvent | SubAccountDepositEvent;
 
 const Dashboard = () => {
+  const { user } = useUser();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
   const [isAddingSickLeave, setIsAddingSickLeave] = useState(false);
@@ -168,6 +171,293 @@ const Dashboard = () => {
     }
   };
 
+  Font.register({
+    family: 'OpenSans',
+    fonts: [
+      {
+        src: '/fonts/OpenSans-Regular.ttf',
+        fontWeight: 'normal',
+      },
+      {
+        src: '/fonts/OpenSans-Bold.ttf',
+        fontWeight: 'bold',
+      },
+    ],
+  });
+
+  const styles = StyleSheet.create({
+    page: {
+      flexDirection: 'column',
+      backgroundColor: '#FFFFFF',
+      padding: 30,
+      fontFamily: 'OpenSans',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#00993F',
+      marginBottom: 20,
+      textAlign: 'center',
+      fontFamily: 'OpenSans',
+    },
+    date: {
+      fontSize: 12,
+      marginBottom: 30,
+      textAlign: 'center',
+      fontFamily: 'OpenSans',
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#00416E',
+      marginBottom: 15,
+      marginTop: 20,
+      fontFamily: 'OpenSans',
+    },
+    dataItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+      paddingVertical: 4,
+    },
+    dataLabel: {
+      fontSize: 11,
+      fontWeight: 'bold',
+      color: '#00416E',
+      fontFamily: 'OpenSans',
+    },
+    dataValue: {
+      fontSize: 11,
+      color: '#00993F',
+      fontFamily: 'OpenSans',
+    },
+    eventItem: {
+      marginBottom: 6,
+      fontSize: 10,
+      color: '#000000',
+      fontFamily: 'OpenSans',
+    },
+    footer: {
+      position: 'absolute',
+      bottom: 30,
+      left: 30,
+      right: 30,
+      textAlign: 'center',
+      fontSize: 10,
+      color: '#666666',
+      fontFamily: 'OpenSans',
+    },
+    forecastTable: {
+      marginBottom: 20,
+      border: '1pt solid #e2e8f0',
+      borderRadius: 4,
+    },
+    tableHeader: {
+      flexDirection: 'row',
+      backgroundColor: '#00416E',
+      padding: 8,
+    },
+    tableHeaderCell: {
+      flex: 1,
+      fontSize: 10,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+      fontFamily: 'OpenSans',
+      textAlign: 'center',
+    },
+    tableRow: {
+      flexDirection: 'row',
+      borderBottom: '1pt solid #e2e8f0',
+      padding: 6,
+    },
+    tableCell: {
+      flex: 1,
+      fontSize: 9,
+      color: '#374151',
+      fontFamily: 'OpenSans',
+      paddingHorizontal: 4,
+    },
+    tableCellValue: {
+      flex: 1,
+      fontSize: 9,
+      fontWeight: 'bold',
+      color: '#00993F',
+      fontFamily: 'OpenSans',
+      textAlign: 'center',
+      paddingHorizontal: 4,
+    },
+    tableCellPositive: {
+      flex: 1,
+      fontSize: 9,
+      fontWeight: 'bold',
+      color: '#059669',
+      fontFamily: 'OpenSans',
+      textAlign: 'center',
+      paddingHorizontal: 4,
+    },
+    tableCellNegative: {
+      flex: 1,
+      fontSize: 9,
+      fontWeight: 'bold',
+      color: '#dc2626',
+      fontFamily: 'OpenSans',
+      textAlign: 'center',
+      paddingHorizontal: 4,
+    },
+  });
+
+  const MyDocument = () => (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.title}>RAPORT SYMULATORA EMERYTALNEGO ZUS</Text>
+        <Text style={styles.date}>
+          Data wygenerowania: {new Date().toLocaleDateString('pl-PL')}
+        </Text>
+
+        <Text style={styles.sectionTitle}>DANE UŻYTKOWNIKA</Text>
+        {user && (
+          <>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Rok rozpoczęcia pracy:</Text>
+              <Text style={styles.dataValue}>{user.StartYear}</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Rok planowanego przejścia na emeryturę:</Text>
+              <Text style={styles.dataValue}>{user.PlannedRetirementYear}</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Płeć:</Text>
+              <Text style={styles.dataValue}>{user.sex}</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Obecne miesięczne wynagrodzenie brutto:</Text>
+              <Text style={styles.dataValue}>{user.GrossSalary.toLocaleString('pl-PL')} zł</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Udział chorobowego (średnio dni/rok):</Text>
+              <Text style={styles.dataValue}>{user.sickDaysPerYear || 34} dni</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Uwzględnienie chorób:</Text>
+              <Text style={styles.dataValue}>{user.includeSickDays ? 'Tak' : 'Nie'}</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Uwzględnienie opóźnienia emerytury:</Text>
+              <Text style={styles.dataValue}>{user.includeDelayedRetirement ? 'Tak' : 'Nie'}</Text>
+            </View>
+            <View style={styles.dataItem}>
+              <Text style={styles.dataLabel}>Docelowa emerytura (oczekiwana):</Text>
+              <Text style={styles.dataValue}>
+                {user.targetPension ? `${user.targetPension.toLocaleString('pl-PL')} zł/mies.` : 'Nie określono'}
+              </Text>
+            </View>
+          </>
+        )}
+
+        <Text style={styles.sectionTitle}>SZCZEGÓŁOWA PROGNOZA EMERYTALNA</Text>
+        
+        <View style={styles.forecastTable}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.tableHeaderCell}>Wskaźnik</Text>
+            <Text style={styles.tableHeaderCell}>Wartość</Text>
+            <Text style={styles.tableHeaderCell}>Opis</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Prognozowana emerytura nominalna</Text>
+            <Text style={styles.tableCellValue}>8 250 zł/mies.</Text>
+            <Text style={styles.tableCell}>Kwota w roku przejścia (2055)</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Urealniona wartość (dzisiejsze zł)</Text>
+            <Text style={styles.tableCellValue}>3 400 zł/mies.</Text>
+            <Text style={styles.tableCell}>Po uwzględnieniu inflacji</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Łączny kapitał zgromadzony</Text>
+            <Text style={styles.tableCellValue}>1 970 000 zł</Text>
+            <Text style={styles.tableCell}>Suma składek + waloryzacja</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Stopa zastąpienia</Text>
+            <Text style={styles.tableCellValue}>38%</Text>
+            <Text style={styles.tableCell}>Emerytura / ostatnia pensja</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Średnia emerytura w kraju (2055)</Text>
+            <Text style={styles.tableCell}>7 800 zł</Text>
+            <Text style={styles.tableCell}>Porównanie do średniej</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Twoja emerytura względem średniej</Text>
+            <Text style={styles.tableCellPositive}>🔼 +6%</Text>
+            <Text style={styles.tableCell}>Nad/pod średnią</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Wpływ chorób</Text>
+            <Text style={styles.tableCellNegative}>-42 000 zł</Text>
+            <Text style={styles.tableCell}>Redukcja przez absencje</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Opóźnienie o 1 rok</Text>
+            <Text style={styles.tableCellPositive}>+8%</Text>
+            <Text style={styles.tableCell}>Wzrost świadczenia</Text>
+          </View>
+          
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>Opóźnienie o 5 lat</Text>
+            <Text style={styles.tableCellPositive}>+32%</Text>
+            <Text style={styles.tableCell}>Wzrost świadczenia</Text>
+          </View>
+        </View>
+
+        {events.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>WYDARZENIA NA OSI CZASU</Text>
+            {events.map((event) => {
+              const eventText = event.type === 'salary' 
+                ? `Zmiana wynagrodzenia: ${event.title} - ${event.amount.toLocaleString('pl-PL')} zł (${new Date(event.date).toLocaleDateString('pl-PL')})`
+                : event.type === 'subAccountDeposit'
+                ? `Wpłata na subkonto: ${event.title} - ${event.amount.toLocaleString('pl-PL')} zł (${new Date(event.date).toLocaleDateString('pl-PL')})`
+                : `Zwolnienie chorobowe: ${event.title} (${new Date(event.startDate).toLocaleDateString('pl-PL')} - ${new Date(event.endDate).toLocaleDateString('pl-PL')})`;
+              
+              return (
+                <Text key={event.id} style={styles.eventItem}>
+                  {eventText}
+                </Text>
+              );
+            })}
+          </>
+        )}
+
+        <Text style={styles.footer}>
+          Wygenerowano przez Symulator Emerytalny ZUS
+        </Text>
+      </Page>
+    </Document>
+  );
+
+  const generatePDF = async () => {
+    if (!user) return;
+
+    const blob = await pdf(MyDocument()).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `raport-emerytalny-${new Date().toISOString().split('T')[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
@@ -190,6 +480,161 @@ const Dashboard = () => {
             <div className="account-value">
               <span className="value-label">Zgromadzona kwota:</span>
               <span className="value-amount">0,00 zł</span>
+            </div>
+          </div>
+        </div>
+
+        {user && (
+          <div className="user-data-section">
+            <h2>Twoje Dane</h2>
+            <div className="user-data-grid">
+              <div className="data-item">
+                <span className="data-label">Rok rozpoczęcia pracy:</span>
+                <span className="data-value">{user.StartYear}</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Rok planowanego przejścia na emeryturę:</span>
+                <span className="data-value">{user.PlannedRetirementYear}</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Płeć:</span>
+                <span className="data-value">{user.sex}</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Obecne miesięczne wynagrodzenie brutto:</span>
+                <span className="data-value">{user.GrossSalary.toLocaleString('pl-PL')} zł</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Udział chorobowego (średnio dni/rok):</span>
+                <span className="data-value">{user.sickDaysPerYear || 34} dni</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Uwzględnienie chorób:</span>
+                <span className="data-value">{user.includeSickDays ? '✅ Tak' : '❌ Nie'}</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Uwzględnienie opóźnienia emerytury:</span>
+                <span className="data-value">{user.includeDelayedRetirement ? '✅ Tak' : '❌ Nie'}</span>
+              </div>
+              <div className="data-item">
+                <span className="data-label">Docelowa emerytura (oczekiwana):</span>
+                <span className="data-value">{user.targetPension ? `${user.targetPension.toLocaleString('pl-PL')} zł/mies.` : 'Nie określono'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="pension-forecast-section">
+          <h2>Szczegółowa Prognoza Emerytalna</h2>
+          
+          <div className="forecast-table">
+            <div className="table-header">
+              <div className="table-cell">Wskaźnik</div>
+              <div className="table-cell">Wartość</div>
+              <div className="table-cell">Opis</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Prognozowana emerytura nominalna</div>
+              <div className="table-cell value-highlight">8 250 zł/mies.</div>
+              <div className="table-cell">Kwota w roku przejścia (2055)</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Urealniona wartość (dzisiejsze zł)</div>
+              <div className="table-cell value-highlight">3 400 zł/mies.</div>
+              <div className="table-cell">Po uwzględnieniu inflacji</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Łączny kapitał zgromadzony</div>
+              <div className="table-cell value-highlight">1 970 000 zł</div>
+              <div className="table-cell">Suma składek + waloryzacja</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Stopa zastąpienia</div>
+              <div className="table-cell value-highlight">38%</div>
+              <div className="table-cell">Emerytura / ostatnia pensja</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Średnia emerytura w kraju (2055)</div>
+              <div className="table-cell">7 800 zł</div>
+              <div className="table-cell">Porównanie do średniej</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Twoja emerytura względem średniej</div>
+              <div className="table-cell value-positive">🔼 +6%</div>
+              <div className="table-cell">Nad/pod średnią</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Wpływ chorób</div>
+              <div className="table-cell value-negative">-42 000 zł</div>
+              <div className="table-cell">Redukcja przez absencje</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Opóźnienie o 1 rok</div>
+              <div className="table-cell value-positive">+8%</div>
+              <div className="table-cell">Wzrost świadczenia</div>
+            </div>
+            
+            <div className="table-row">
+              <div className="table-cell">Opóźnienie o 5 lat</div>
+              <div className="table-cell value-positive">+32%</div>
+              <div className="table-cell">Wzrost świadczenia</div>
+            </div>
+          </div>
+
+          <div className="charts-section">
+            <div className="chart-container">
+              <h3>Porównanie Emerytur</h3>
+              <div className="bar-chart">
+                <div className="bar-item">
+                  <div className="bar-label">Twoja emerytura</div>
+                  <div className="bar-wrapper">
+                    <div className="bar-fill" style={{ width: '100%', backgroundColor: '#00993F' }}></div>
+                    <span className="bar-value">8 250 zł</span>
+                  </div>
+                </div>
+                <div className="bar-item">
+                  <div className="bar-label">Średnia krajowa</div>
+                  <div className="bar-wrapper">
+                    <div className="bar-fill" style={{ width: '95%', backgroundColor: '#2563eb' }}></div>
+                    <span className="bar-value">7 800 zł</span>
+                  </div>
+                </div>
+                <div className="bar-item">
+                  <div className="bar-label">Wartość realna</div>
+                  <div className="bar-wrapper">
+                    <div className="bar-fill" style={{ width: '41%', backgroundColor: '#f59e0b' }}></div>
+                    <span className="bar-value">3 400 zł</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="chart-container">
+              <h3>Wpływ Opóźnienia Emerytury</h3>
+              <div className="line-chart">
+                <div className="chart-line">
+                  <div className="chart-point" style={{ left: '0%' }}>
+                    <span className="point-value">0%</span>
+                    <span className="point-label">Obecnie</span>
+                  </div>
+                  <div className="chart-point" style={{ left: '20%' }}>
+                    <span className="point-value">+8%</span>
+                    <span className="point-label">+1 rok</span>
+                  </div>
+                  <div className="chart-point" style={{ left: '100%' }}>
+                    <span className="point-value">+32%</span>
+                    <span className="point-label">+5 lat</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -540,6 +985,12 @@ const Dashboard = () => {
           <div className="growth-chart-placeholder">
             <p>Wykres pokazujący wzrost kwot zgromadzonych na koncie i subkoncie w czasie</p>
           </div>
+        </div>
+
+        <div className="report-section">
+          <button className="download-report-btn" onClick={generatePDF}>
+            📊 Pobierz raport
+          </button>
         </div>
       </div>
     </div>

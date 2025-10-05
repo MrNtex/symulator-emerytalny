@@ -8,7 +8,11 @@ type User = {
   sex: Gender,
   GrossSalary: number,
   StartYear: number,
-  PlannedRetirementYear: number
+  PlannedRetirementYear: number,
+  sickDaysPerYear?: number,
+  includeSickDays?: boolean,
+  includeDelayedRetirement?: boolean,
+  targetPension?: number
 };
 
 type UserContextType = {

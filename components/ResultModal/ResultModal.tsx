@@ -161,7 +161,7 @@ const ResultModal = () => {
 
       <div className="action-buttons">
         <button className="btn-secondary" onClick={() => window.history.back()}>Zmień parametry</button>
-        <button className="btn-primary" onClick={() => router.push('/dashboard')}>Zaawansowana symulacja</button>
+        <button className="btn-primary" onClick={() => router.push('/panel')}>Zaawansowana symulacja</button>
         <button className="btn-success">Pobierz raport</button>
       </div>
     </div>
@@ -169,4 +169,3 @@ const ResultModal = () => {
 }
 
 export default ResultModal
-
