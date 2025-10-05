@@ -502,6 +502,31 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
   const generatePDF = async () => {
     if (!user) return;
 
+    try {
+      await fetch('/api/save-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          age: user.age,
+          sex: user.sex,
+          grossSalary: user.GrossSalary,
+          startYear: user.StartYear,
+          plannedRetirementYear: user.PlannedRetirementYear,
+          sickDaysPerYear: user.sickDaysPerYear,
+          includeSickDays: user.includeSickDays,
+          includeDelayedRetirement: user.includeDelayedRetirement,
+          targetPension: user.targetPension,
+          events: events,
+          balanceData: balanceData,
+          postalCode: postalCode || null,
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    }
+
     const blob = await pdf(MyDocument()).toBlob();
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
