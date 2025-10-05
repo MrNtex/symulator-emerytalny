@@ -16,7 +16,7 @@ import {
 
 // Test parameters
 const testParams = {
-  monthlyIncome: 500000,
+  monthlyIncome: 5000,
   yearWorkStart: 2020,
   yearRetirement: 2065, // Age 65 retirement
   gender: 'male' as const

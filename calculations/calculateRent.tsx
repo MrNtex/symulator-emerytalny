@@ -124,7 +124,7 @@ export function calculateSickDaysImpact(params: CalculationParams, averageSickDa
     const realGrowthRate = wageGrowthRate + inflationRate; 
     let yearlyContribution = 0;
     const dailySalary = currentIncome / workingDaysPerMonth;
-    yearlyContribution = currentIncome * monthsInYear * contributionRate - averageSickDaysPerYear * dailySalary;
+    yearlyContribution = currentIncome * monthsInYear * contributionRate - (averageSickDaysPerYear * dailySalary * contributionRate);
     if(yearlyContribution/30 > averageSalaryData[year.toString()]) {
       yearlyContribution = averageSalaryData[year.toString()] * 30; 
     }
