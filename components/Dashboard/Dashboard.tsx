@@ -607,29 +607,32 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="charts-section">
+          <div className="charts-section-dashboard">
             <div className="chart-container">
               <h3>Porównanie Emerytur</h3>
               <div className="bar-chart">
                 <div className="bar-item">
                   <div className="bar-label">Twoja emerytura</div>
                   <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: '100%', backgroundColor: '#00993F' }}></div>
-                    <span className="bar-value">8 250 zł</span>
+                    <div className="bar-fill" style={{ width: '100%', backgroundColor: '#00993F' }}>
+                      <span className="bar-value">8 250 zł</span>
+                    </div>
                   </div>
                 </div>
                 <div className="bar-item">
                   <div className="bar-label">Średnia krajowa</div>
                   <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: '95%', backgroundColor: '#2563eb' }}></div>
-                    <span className="bar-value">7 800 zł</span>
+                    <div className="bar-fill" style={{ width: '95%', backgroundColor: '#2563eb' }}>
+                      <span className="bar-value">7 800 zł</span>
+                    </div>
                   </div>
                 </div>
                 <div className="bar-item">
                   <div className="bar-label">Wartość realna</div>
                   <div className="bar-wrapper">
-                    <div className="bar-fill" style={{ width: '41%', backgroundColor: '#f59e0b' }}></div>
-                    <span className="bar-value">3 400 zł</span>
+                    <div className="bar-fill" style={{ width: '41%', backgroundColor: '#f59e0b' }}>
+                      <span className="bar-value">3 400 zł</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -643,7 +646,7 @@ const Dashboard = () => {
                     <div className="delay-bar-label">Emerytura standardowa</div>
                     <div className="delay-bar-wrapper">
                       <div className="delay-bar-fill" style={{ width: '60%', backgroundColor: '#64748b' }}>
-                        <span className="delay-bar-value">8 250 zł</span>
+                        <span className="delay-bar-value">8 250</span>
                       </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 67 lat (0%)</span>
@@ -652,7 +655,7 @@ const Dashboard = () => {
                     <div className="delay-bar-label">Po opóźnieniu +1 rok</div>
                     <div className="delay-bar-wrapper">
                       <div className="delay-bar-fill" style={{ width: '65%', backgroundColor: '#0ea5e9' }}>
-                        <span className="delay-bar-value">8 910 zł</span>
+                        <span className="delay-bar-value">8 910</span>
                       </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 68 lat (+8%)</span>
@@ -661,7 +664,7 @@ const Dashboard = () => {
                     <div className="delay-bar-label">Po opóźnieniu +5 lat</div>
                     <div className="delay-bar-wrapper">
                       <div className="delay-bar-fill" style={{ width: '80%', backgroundColor: '#00993F' }}>
-                        <span className="delay-bar-value">10 890 zł</span>
+                        <span className="delay-bar-value">10 890</span>
                       </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 72 lata (+32%)</span>
@@ -1046,7 +1049,7 @@ const Dashboard = () => {
                 onClick={handleSendFeedback}
                 disabled={isFeedbackSent}
               >
-                {isFeedbackSent ? '✓ Wysłano!' : 'Wyślij'}
+                {isFeedbackSent ? 'Wysłano' : 'Wyślij'}
               </button>
             </div>
           </div>
