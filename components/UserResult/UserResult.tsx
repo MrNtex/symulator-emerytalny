@@ -25,21 +25,19 @@ const getRetirementAge = (gender: 'male' | 'female') => {
 const PensionDisplay = () => {
   const { user } = useUser();
   const { sendUsageReport } = useUsageReport();
-  
-  if (!user) {
-    return <div className="no-data-message">Proszę wprowadzić dane do kalkulatora.</div>;
-  }  
-  const mappedGender = mapGender(user.sex);
+
+  const mappedGender = user ? mapGender(user.sex) : 'male';
   const retirementAge = getRetirementAge(mappedGender);
-  
-  const calculationParams = {
+
+  const calculationParams = user ? {
     monthlyIncome: user.GrossSalary,
     yearWorkStart: user.StartYear,
     yearRetirement: user.PlannedRetirementYear,
     gender: mappedGender,
-  };
-  const delayedRetirementYear = user.PlannedRetirementYear + 5;
-  const delayedRetirementAge = retirementAge + 5; 
+  } : null;
+
+  const delayedRetirementYear = user ? user.PlannedRetirementYear + 5 : 0;
+  const delayedRetirementAge = retirementAge + 5;
   let actualMonthly: number = 0, realMonthly: number = 0, sickDaysMonthly: number = 0, delayedMonthly: number = 0;
   let actualTotal: number = 0, realTotal: number = 0, sickDaysTotal: number = 0, delayedTotal: number = 0;
   let retirementStep: number | undefined;
@@ -49,63 +47,56 @@ const PensionDisplay = () => {
   let yearsToTarget = 0;
   let calculationError: string | null = null;
 
-  try {
-    actualTotal = calculatePension(calculationParams);
-    realTotal = calculateRealPension(calculationParams);
+  if (calculationParams && user) {
+    try {
+      actualTotal = calculatePension(calculationParams);
+      realTotal = calculateRealPension(calculationParams);
 
-    sickDaysTotal = calculateSickDaysImpact(calculationParams);
-    delayedTotal = calculateDelayedRetirementRent(calculationParams, delayedRetirementYear, false);
-    actualMonthly = calculateMonthlyPension(actualTotal, retirementAge);
-    realMonthly = calculateMonthlyPension(realTotal, retirementAge);
-    sickDaysMonthly = calculateMonthlyPension(sickDaysTotal, retirementAge);
-    delayedMonthly = calculateMonthlyPension(delayedTotal, delayedRetirementAge);
-    retirementStep = calculateRetirementStep(calculationParams, false, false) * 100;
+      sickDaysTotal = calculateSickDaysImpact(calculationParams);
+      delayedTotal = calculateDelayedRetirementRent(calculationParams, delayedRetirementYear, false);
+      actualMonthly = calculateMonthlyPension(actualTotal, retirementAge);
+      realMonthly = calculateMonthlyPension(realTotal, retirementAge);
+      sickDaysMonthly = calculateMonthlyPension(sickDaysTotal, retirementAge);
+      delayedMonthly = calculateMonthlyPension(delayedTotal, delayedRetirementAge);
+      retirementStep = calculateRetirementStep(calculationParams, false, false) * 100;
 
-    // Prognozowana średnia emerytura w kraju
-    const currentAveragePension = 3500; // Aktualna średnia emerytura w Polsce (2024)
-    const yearsUntilRetirement = user.PlannedRetirementYear - new Date().getFullYear();
-    futureAveragePension = calculateFutureAveragePension(currentAveragePension, yearsUntilRetirement, new Date().getFullYear());
-    
-    // Porównanie z prognozowaną średnią emeryturą w kraju
-    pensionComparison = ((realMonthly / futureAveragePension) * 100);
-    
-    // Porównanie z oczekiwanym świadczeniem użytkownika
-    if (user.targetPension && user.targetPension > 0) {
-      targetComparison = ((realMonthly / user.targetPension) * 100);
-      
-      // Oblicz ile lat dłużej musi pracować, żeby osiągnąć cel
-      if (realMonthly < user.targetPension) {
-        const monthlyDifference = user.targetPension - realMonthly;
-        const yearlyContribution = user.GrossSalary * 12 * 0.195; // 19.5% składki emerytalnej
-        yearsToTarget = Math.ceil(monthlyDifference * 12 / yearlyContribution);
+      const currentAveragePension = 3500;
+      const yearsUntilRetirement = user.PlannedRetirementYear - new Date().getFullYear();
+      futureAveragePension = calculateFutureAveragePension(currentAveragePension, yearsUntilRetirement, new Date().getFullYear());
+
+      pensionComparison = ((realMonthly / futureAveragePension) * 100);
+
+      if (user.targetPension && user.targetPension > 0) {
+        targetComparison = ((realMonthly / user.targetPension) * 100);
+
+        if (realMonthly < user.targetPension) {
+          const monthlyDifference = user.targetPension - realMonthly;
+          const yearlyContribution = user.GrossSalary * 12 * 0.195;
+          yearsToTarget = Math.ceil(monthlyDifference * 12 / yearlyContribution);
+        }
       }
+
+    } catch (error) {
+      calculationError = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas obliczeń.";
+      console.error("Błąd kalkulacji:", error);
     }
-
-  } catch (error) {
-    calculationError = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas obliczeń.";
-    console.error("Błąd kalkulacji:", error);
   }
 
-  if (calculationError) {
-    return <div className="error-message">Błąd: {calculationError}</div>;
-  }
-
-  // Wysyłanie danych do bazy po obliczeniach
   useEffect(() => {
-    if (!calculationError && realMonthly && realTotal) {
+    if (!calculationError && realMonthly && realTotal && user) {
       const now = new Date();
       const usageData = {
-        date: now.toISOString().split('T')[0], // YYYY-MM-DD
-        time: now.toTimeString().split(' ')[0], // HH:MM:SS
+        date: now.toISOString().split('T')[0],
+        time: now.toTimeString().split(' ')[0],
         expectedPension: user.targetPension || 0,
         age: user.age || 0,
         gender: user.sex,
         salary: user.GrossSalary,
         includedSickPeriods: user.includeSickDays || false,
-        accountFunds: 0, // Można dodać logikę do obliczania środków na kontach
+        accountFunds: 0,
         realPension: realTotal,
         adjustedPension: realMonthly,
-        postalCode: user.postalCode || '', // Opcjonalny
+        postalCode: user.postalCode || '',
       };
 
       console.log('Wysyłanie danych do MongoDB:', usageData);
@@ -115,6 +106,14 @@ const PensionDisplay = () => {
     }
   }, [calculationError, realMonthly, realTotal, user, sendUsageReport]);
 
+  if (!user) {
+    return <div className="no-data-message">Proszę wprowadzić dane do kalkulatora.</div>;
+  }
+
+  if (calculationError) {
+    return <div className="error-message">Błąd: {calculationError}</div>;
+  }
+
   const results = {
     actual: actualMonthly ?? 0,
     real: realMonthly ?? 0,
@@ -122,7 +121,6 @@ const PensionDisplay = () => {
     delayed: delayedMonthly ?? 0,
     step: retirementStep ?? 0,
   };
-
 
   return (
     <div className="pension-display">
