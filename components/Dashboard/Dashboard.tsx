@@ -6,7 +6,6 @@ import './Dashboard.css';
 import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
 import PensionForecastChart from '@/components/PensionForecastChart';
 import { calculateTotalBalance, getLatestBalance, formatCurrency } from '@/utils/pensionCalculations';
-import balanceDataJson from '@/shared/data/balance.json';
 
 interface SalaryChangeEvent {
   id: string;
@@ -34,10 +33,18 @@ interface SubAccountDepositEvent {
 
 type TimelineEvent = SalaryChangeEvent | SickLeaveEvent | SubAccountDepositEvent;
 
-const Dashboard = () => {
+interface BalanceData {
+  mainBalance: number;
+  subBalance: number;
+}
+
+interface DashboardProps {
+  balanceData: { [year: string]: BalanceData };
+}
+
+const Dashboard = ({ balanceData }: DashboardProps) => {
   const { user } = useUser();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
-  const [balanceData] = useState(balanceDataJson);
   const latestBalance = getLatestBalance(balanceData);
   const totalBalance = calculateTotalBalance(balanceData);
   const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
