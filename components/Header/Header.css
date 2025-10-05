@@ -3,7 +3,7 @@
     background-color: #fff;
     width: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    
+
 }
 
 .zus-topbar {
@@ -41,12 +41,12 @@
     line-height: 1.2;
 }
 
-  .zus-controls {
+.zus-controls {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     height: 50px;
-  }
+}
 
 .zus-kontakt {
     background: none;
@@ -97,7 +97,7 @@
     transform: scale(1.05);
 }
 
-  .zus-register {
+.zus-register {
     color: #00416E;
     border: 2px solid #00416E;
     padding: 0 16px;
@@ -110,14 +110,14 @@
     justify-content: center;
     height: 40px;
     line-height: 1;
-  }
+}
 
 .zus-register:hover {
     background: #00416E;
     color: #fff;
 }
 
-  .zus-login {
+.zus-login {
     background-color: #FFBB00;
     color: #00416E;
     border: 2px solid #FFBB00;
@@ -131,7 +131,7 @@
     justify-content: center;
     height: 40px;
     line-height: 1;
-  }
+}
 
 .zus-login:hover {
     background-color: #E5A800;
@@ -157,20 +157,20 @@
     color: white;
 }
 
-  .zus-eu {
+.zus-eu {
     display: flex;
     align-items: center;
     gap: 10px;
     padding-left: 16px;
     border-left: 1px solid #ddd;
     height: 40px;
-  }
+}
 
-  .zus-eu-flag {
+.zus-eu-flag {
     height: 26px;
     width: auto;
     border-radius: 2px;
-  }
+}
 
 .zus-eu-text strong {
     color: #000;
@@ -213,3 +213,29 @@
 .zus-navbar a:hover::after {
     height: 3px;
 }
+
+.bip-logo {
+    width: 40px; /* było 20px */
+    height: 40px;
+    object-fit: contain;
+    padding: 4px;
+    border-radius: 6px;
+    background: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .bip-logo:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+  }
+  
+  .bip-logo img {
+    width: 50px;
+    height: auto;
+    object-fit: contain;
+  }

@@ -41,6 +41,10 @@ const Header = () => {
                         </button>
                     </div>
 
+                    <button className="bip-logo">
+                        <img src="/images/bip-logo.png" alt="BIP Logo" />
+                    </button>
+
                     <a href="#" className="zus-register">Zarejestruj w PUE/eZUS</a>
                     <a href="#" className="zus-login">Zaloguj do PUE/eZUS</a>
 
