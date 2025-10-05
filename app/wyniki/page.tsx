@@ -1,5 +1,5 @@
 'use client'
-import UserResult from '@/components/UserResult/UserResult'
+import ResultModal from '@/components/ResultModal/ResultModal'
 export default function Page() {
-  return <UserResult />
+  return <ResultModal/>
 }

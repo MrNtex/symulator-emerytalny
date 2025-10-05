@@ -1,13 +1,20 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import './Header.css';
 import { Ear, Accessibility, Search } from 'lucide-react';
 
 const Header = () => {
+    const router = useRouter();
+
+    const handleLogoClick = () => {
+        router.push('/');
+    };
+
     return (
         <header className="zus-header">
             <div className="zus-topbar">
-                <div className="zus-logo">
+                <div className="zus-logo" onClick={handleLogoClick}>
                     <img
                         src="/images/zus-logo.png"
                         alt="ZUS Logo"
