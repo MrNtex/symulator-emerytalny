@@ -9,11 +9,11 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     const client = await clientPromise;
-    const db = client.db('zus_simulator');
+    const db = client.db('emerytura');
     const collection = db.collection('usage_reports');
 
     // Budowanie filtra dat
-    let filter: any = {};
+    const filter: Record<string, any> = {};
     if (startDate || endDate) {
       filter.date = {};
       if (startDate) filter.date.$gte = startDate;

@@ -502,6 +502,31 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
   const generatePDF = async () => {
     if (!user) return;
 
+    try {
+      await fetch('/api/save_user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          age: user.age,
+          sex: user.sex,
+          grossSalary: user.GrossSalary,
+          startYear: user.StartYear,
+          plannedRetirementYear: user.PlannedRetirementYear,
+          sickDaysPerYear: user.sickDaysPerYear,
+          includeSickDays: user.includeSickDays,
+          includeDelayedRetirement: user.includeDelayedRetirement,
+          targetPension: user.targetPension,
+          events: events,
+          balanceData: balanceData,
+          postalCode: postalCode || null,
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    }
+
     const blob = await pdf(MyDocument()).toBlob();
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -748,12 +773,12 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
               >
                 + Chorobowy
               </button>
-              <button
+            <button
                 className="add-event-btn subaccount-btn"
                 onClick={() => setIsAddingSubAccountDeposit(true)}
-              >
+            >
                 + Wpłata na subkonto
-              </button>
+            </button>
             </div>
           </div>
 
@@ -828,33 +853,33 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
                       </div>
                     );
                   } else {
-                    return (
-                      <div
-                        key={event.id}
-                        className="timeline-event"
-                        style={{
-                          left: `${leftPosition}%`,
-                          borderColor: getEventColor(event.type),
+                  return (
+                    <div
+                      key={event.id}
+                      className="timeline-event"
+                      style={{
+                        left: `${leftPosition}%`,
+                        borderColor: getEventColor(event.type),
                           transform: baseTransform,
-                        }}
+                      }}
+                    >
+                      <button
+                        className="event-delete"
+                        onClick={() => handleDeleteEvent(event.id)}
                       >
-                        <button
-                          className="event-delete"
-                          onClick={() => handleDeleteEvent(event.id)}
-                        >
-                          ×
-                        </button>
-                        <div
-                          className="event-indicator"
-                          style={{ backgroundColor: getEventColor(event.type) }}
-                        ></div>
-                        <div className="event-content">
-                          <h4>{event.title}</h4>
+                        ×
+                      </button>
+                      <div
+                        className="event-indicator"
+                        style={{ backgroundColor: getEventColor(event.type) }}
+                      ></div>
+                      <div className="event-content">
+                        <h4>{event.title}</h4>
                           <p>Kwota: {event.amount?.toLocaleString('pl-PL')} zł</p>
                           <p>Data: {new Date(event.date!).toLocaleDateString('pl-PL')}</p>
-                        </div>
                       </div>
-                    );
+                    </div>
+                  );
                   }
                 })}
               </div>
@@ -1006,16 +1031,16 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Kwota (zł)</label>
-                <input
-                  type="number"
+                <div className="form-group">
+                  <label>Kwota (zł)</label>
+                  <input
+                    type="number"
                   value={subAccountDeposit.amount || ''}
                   onChange={(e) => setSubAccountDeposit({ ...subAccountDeposit, amount: parseFloat(e.target.value) })}
-                  placeholder="0.00"
+                    placeholder="0.00"
                   step="0.01"
-                />
-              </div>
+                  />
+                </div>
 
               <div className="modal-actions">
                 <button

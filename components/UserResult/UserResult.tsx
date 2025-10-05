@@ -40,8 +40,8 @@ const PensionDisplay = () => {
   };
   const delayedRetirementYear = user.PlannedRetirementYear + 5;
   const delayedRetirementAge = retirementAge + 5; 
-  let actualMonthly, realMonthly, sickDaysMonthly, delayedMonthly;
-  let actualTotal, realTotal, sickDaysTotal, delayedTotal;
+  let actualMonthly: number = 0, realMonthly: number = 0, sickDaysMonthly: number = 0, delayedMonthly: number = 0;
+  let actualTotal: number = 0, realTotal: number = 0, sickDaysTotal: number = 0, delayedTotal: number = 0;
   let retirementStep: number | undefined;
   let futureAveragePension = 0;
   let pensionComparison = 0;
@@ -86,6 +86,10 @@ const PensionDisplay = () => {
     console.error("Błąd kalkulacji:", error);
   }
 
+  if (calculationError) {
+    return <div className="error-message">Błąd: {calculationError}</div>;
+  }
+
   // Wysyłanie danych do bazy po obliczeniach
   useEffect(() => {
     if (!calculationError && realMonthly && realTotal) {
@@ -104,13 +108,12 @@ const PensionDisplay = () => {
         postalCode: user.postalCode || '', // Opcjonalny
       };
 
-      sendUsageReport(usageData);
+      console.log('Wysyłanie danych do MongoDB:', usageData);
+      sendUsageReport(usageData).then(success => {
+        console.log('Wynik wysyłania:', success);
+      });
     }
   }, [calculationError, realMonthly, realTotal, user, sendUsageReport]);
-
-  if (calculationError) {
-    return <div className="error-message">Błąd: {calculationError}</div>;
-  }
 
   const results = {
     actual: actualMonthly ?? 0,

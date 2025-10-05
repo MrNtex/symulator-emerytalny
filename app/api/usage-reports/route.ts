@@ -4,7 +4,9 @@ import { UsageReport } from '@/shared/models/UsageReport';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('API: Otrzymano żądanie POST do /api/usage-reports');
     const body = await request.json();
+    console.log('API: Dane otrzymane:', body);
     
     // Walidacja danych
     const requiredFields = ['date', 'time', 'expectedPension', 'age', 'gender', 'salary', 'includedSickPeriods', 'accountFunds', 'realPension', 'adjustedPension'];
@@ -34,12 +36,16 @@ export async function POST(request: NextRequest) {
     };
 
     // Połączenie z MongoDB
+    console.log('API: Łączenie z MongoDB...');
     const client = await clientPromise;
-    const db = client.db('zus_simulator');
+    const db = client.db('emerytura');
     const collection = db.collection('usage_reports');
+    console.log('API: Połączono z bazą danych');
 
     // Zapisanie danych
+    console.log('API: Zapisuję dane:', usageReport);
     const result = await collection.insertOne(usageReport);
+    console.log('API: Dane zapisane z ID:', result.insertedId);
 
     return NextResponse.json(
       { 
@@ -62,7 +68,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db('zus_simulator');
+    const db = client.db('emerytura');
     const collection = db.collection('usage_reports');
 
     // Pobranie wszystkich raportów (dla admina)
