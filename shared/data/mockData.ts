@@ -166,40 +166,48 @@ export const mockUserReports = [
     },
   ];
   
-  export const mockMonthlyReports = [
-    {
-      id: '1',
-      month: '2025-03-01',
-      avg_pension: 3280,
-      avg_replacement_rate: 50.2,
-      report_count: 156,
-      generated_at: '2025-03-15',
-    },
-    {
-      id: '2',
-      month: '2025-02-01',
-      avg_pension: 3150,
-      avg_replacement_rate: 49.8,
-      report_count: 142,
-      generated_at: '2025-03-01',
-    },
-    {
-      id: '3',
-      month: '2025-01-01',
-      avg_pension: 3050,
-      avg_replacement_rate: 49.5,
-      report_count: 128,
-      generated_at: '2025-02-01',
-    },
-    {
-      id: '4',
-      month: '2024-12-01',
-      avg_pension: 2980,
-      avg_replacement_rate: 49.2,
-      report_count: 135,
-      generated_at: '2025-01-01',
-    },
-  ];
+  export const mockUsageReports = [
+  {
+    id: '1',
+    usage_date: '2025-03-15T10:24:00',
+    expected_pension: 3500,
+    age: 45,
+    gender: 'M',
+    salary: 7200,
+    included_sick_periods: true,
+    account_funds: 150000,
+    actual_pension: 2900,
+    real_pension: 3100,
+    postal_code: '00-120'
+  },
+  {
+    id: '2',
+    usage_date: '2025-03-15T14:52:00',
+    expected_pension: 2900,
+    age: 38,
+    gender: 'F',
+    salary: 6500,
+    included_sick_periods: false,
+    account_funds: 120000,
+    actual_pension: 2600,
+    real_pension: 2750,
+    postal_code: '30-210'
+  },
+  {
+    id: '3',
+    usage_date: '2025-03-14T09:11:00',
+    expected_pension: 4100,
+    age: 52,
+    gender: 'M',
+    salary: 8200,
+    included_sick_periods: true,
+    account_funds: 200000,
+    actual_pension: 3400,
+    real_pension: 3600,
+    postal_code: '50-320'
+  }
+];
+
   
   export const mockDashboardStats = {
     totalReports: 567,
