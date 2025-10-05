@@ -4,10 +4,11 @@ import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import DataTable from '../components/DataTable';
 import { mockUsageReports } from '@/shared/data/mockData';
-import { FileDown, FileText, FileJson } from 'lucide-react';
+import { FileDown, FileJson } from 'lucide-react';
 
 export default function ExportsPage() {
   const [reports] = useState(mockUsageReports);
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleRefresh = () => {
     window.location.reload();
@@ -17,100 +18,82 @@ export default function ExportsPage() {
     alert('Funkcja generowania raportu miesięcznego zostanie wkrótce dodana!');
   };
 
-  const handleExportCSV = () => {
-    const headers = [
-    'Data użycia',
-    'Godzina użycia',
-    'Emerytura oczekiwana',
-    'Wiek',
-    'Płeć',
-    'Wysokość wynagrodzenia',
-    'Czy uwzględniał okresy choroby',
-    'Wysokość zgromadzonych środków na koncie i Subkoncie',
-    'Emerytura rzeczywista',
-    'Emerytura urealniona',
-    'Kod pocztowy'
-  ];
-    const rows = reports.map(r => [
-    new Date(r.usage_date).toLocaleDateString('pl-PL'),
-    new Date(r.usage_date).toLocaleTimeString('pl-PL'),
-    r.expected_pension,
-    r.age,
-    r.gender,
-    r.salary,
-    r.included_sick_periods ? 'Tak' : 'Nie',
-    r.account_funds,
-    r.actual_pension,
-    r.real_pension,
-    r.postal_code
-  ]);
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
 
-    const csvContent = [headers, ...rows]
-      .map(row => row.join(','))
-      .join('\n');
+      const response = await fetch('/api/users/export?format=csv');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `raporty_miesieczne_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
+      if (!response.ok) {
+        throw new Error('Błąd podczas pobierania danych');
+      }
+
+      const blob = await response.blob();
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `baza_danych_uzytkownicy_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Błąd podczas eksportu do CSV:', error);
+      alert('Wystąpił błąd podczas eksportu danych do CSV');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
-  const handleExportJSON = () => {
-    const jsonContent = JSON.stringify(reports, null, 2);
-    const blob = new Blob([jsonContent], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `raporty_miesieczne_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
+  const handleExportJSON = async () => {
+    try {
+      setIsExporting(true);
+
+      const response = await fetch('/api/users/export?format=json');
+
+      if (!response.ok) {
+        throw new Error('Błąd podczas pobierania danych');
+      }
+
+      const data = await response.json();
+      const jsonContent = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `baza_danych_uzytkownicy_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error('Błąd podczas eksportu do JSON:', error);
+      alert('Wystąpił błąd podczas eksportu danych do JSON');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const handleExportPDF = () => {
     alert('Funkcja eksportu do PDF zostanie wkrótce dodana!');
   };
 
- const handleExportXLS = () => {
-  const headers = [
-    'Data użycia',
-    'Godzina użycia',
-    'Emerytura oczekiwana',
-    'Wiek',
-    'Płeć',
-    'Wysokość wynagrodzenia',
-    'Czy uwzględniał okresy choroby',
-    'Wysokość zgromadzonych środków na koncie i Subkoncie',
-    'Emerytura rzeczywista',
-    'Emerytura urealniona',
-    'Kod pocztowy'
-  ];
+ const handleExportXLS = async () => {
+  try {
+    setIsExporting(true);
 
-  const rows = reports.map(r => [
-    new Date(r.usage_date).toLocaleDateString('pl-PL'),
-    new Date(r.usage_date).toLocaleTimeString('pl-PL'),
-    r.expected_pension,
-    r.age,
-    r.gender,
-    r.salary,
-    r.included_sick_periods ? 'Tak' : 'Nie',
-    r.account_funds,
-    r.actual_pension,
-    r.real_pension,
-    r.postal_code
-  ]);
+    const response = await fetch('/api/users/export?format=xls');
 
-  let table = '<table border="1" style="border-collapse:collapse;">';
-  table += '<thead><tr>' + headers.map(h => `<th style="background:#e5f5e0;">${h}</th>`).join('') + '</tr></thead>';
-  table += '<tbody>';
-  rows.forEach(row => {
-    table += '<tr>' + row.map(cell => `<td style="padding:4px 8px;">${cell}</td>`).join('') + '</tr>';
-  });
-  table += '</tbody></table>';
+    if (!response.ok) {
+      throw new Error('Błąd podczas pobierania danych');
+    }
 
-  const blob = new Blob([`\uFEFF${table}`], { type: 'application/vnd.ms-excel' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `raport_uzyc_${new Date().toISOString().split('T')[0]}.xls`;
-  link.click();
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `baza_danych_uzytkownicy_${new Date().toISOString().split('T')[0]}.xls`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  } catch (error) {
+    console.error('Błąd podczas eksportu do XLS:', error);
+    alert('Wystąpił błąd podczas eksportu danych do XLS');
+  } finally {
+    setIsExporting(false);
+  }
 };
 
 
@@ -226,25 +209,31 @@ export default function ExportsPage() {
 
             <button
               onClick={handleExportCSV}
+              disabled={isExporting}
               style={{
                 padding: '10px 18px',
-                backgroundColor: '#00416E',
+                backgroundColor: isExporting ? '#6b7280' : '#00416E',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'background-color 0.2s ease'
+                transition: 'background-color 0.2s ease',
+                opacity: isExporting ? 0.7 : 1
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#003d5c';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#003d5c';
+                }
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#00416E';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#00416E';
+                }
               }}
             >
               <FileDown size={16} />
@@ -253,6 +242,7 @@ export default function ExportsPage() {
 
             <button
               onClick={handleExportJSON}
+              disabled={isExporting}
               style={{
                 padding: '10px 18px',
                 backgroundColor: '#6b7280',
@@ -261,17 +251,22 @@ export default function ExportsPage() {
                 borderRadius: '6px',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'background-color 0.2s ease'
+                transition: 'background-color 0.2s ease',
+                opacity: isExporting ? 0.7 : 1
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#4b5563';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#4b5563';
+                }
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#6b7280';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#6b7280';
+                }
               }}
             >
               <FileJson size={16} />
@@ -280,29 +275,35 @@ export default function ExportsPage() {
 
             <button
               onClick={handleExportXLS}
+              disabled={isExporting}
               style={{
                 padding: '10px 18px',
-                backgroundColor: '#00993F',
+                backgroundColor: isExporting ? '#6b7280' : '#00993F',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 fontSize: '14px',
                 fontWeight: '600',
-                cursor: 'pointer',
+                cursor: isExporting ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                transition: 'background-color 0.2s ease'
+                transition: 'background-color 0.2s ease',
+                opacity: isExporting ? 0.7 : 1
               }}
               onMouseOver={(e) => {
-                e.currentTarget.style.backgroundColor = '#008536';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#008536';
+                }
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = '#00993F';
+                if (!isExporting) {
+                  e.currentTarget.style.backgroundColor = '#00993F';
+                }
               }}
             >
               <FileDown size={16} />
-              XLS
+              {isExporting ? 'Eksportowanie...' : 'XLS'}
             </button>
           </div>
         </div>
