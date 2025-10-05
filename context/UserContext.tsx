@@ -12,7 +12,8 @@ type User = {
   sickDaysPerYear?: number,
   includeSickDays?: boolean,
   includeDelayedRetirement?: boolean,
-  targetPension?: number
+  targetPension?: number,
+  postalCode?: string
 };
 
 type UserContextType = {

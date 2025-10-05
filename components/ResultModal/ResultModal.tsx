@@ -9,7 +9,8 @@ import {
   calculateDelayedRetirementRent,
   calculateMonthlyPension,
   calculateRetirementStep,
-  calculateFinalSalary
+  calculateFinalSalary,
+  calculateFutureAveragePension
 } from '@/calculations/calculateRent'
 import './ResultModal.css'
 import { useRouter } from 'next/navigation';
@@ -54,6 +55,8 @@ const ResultModal = () => {
   let retirementStep = 0;
   let sickDaysReduction = 0;
   let finalSalary = 0;
+  let futureAveragePension = 0;
+  let pensionComparison = 0;
   let calculationError: string | null = null;
 
   try {
@@ -84,6 +87,14 @@ const ResultModal = () => {
     
     // Ostatnia pensja
     finalSalary = calculateFinalSalary(user.GrossSalary, user.StartYear, user.PlannedRetirementYear - user.StartYear);
+    
+    // Prognozowana średnia emerytura w kraju
+    const currentAveragePension = 3500; // Aktualna średnia emerytura w Polsce (2024)
+    const yearsUntilRetirement = user.PlannedRetirementYear - new Date().getFullYear();
+    futureAveragePension = calculateFutureAveragePension(currentAveragePension, yearsUntilRetirement, new Date().getFullYear());
+    
+    // Porównanie z prognozowaną średnią emeryturą w kraju
+    pensionComparison = ((realMonthly / futureAveragePension) * 100);
     
   } catch (error) {
     calculationError = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas obliczeń.";
@@ -129,6 +140,30 @@ const ResultModal = () => {
         <div className="stat-card">
           <h4>Ostatnia pensja</h4>
           <p className="stat-value">{Math.round(finalSalary).toLocaleString()} zł</p>
+        </div>
+      </div>
+
+      <div className="comparison-section">
+        <h3>Porównanie ze średnią emeryturą w kraju</h3>
+        <div className="comparison-content">
+          <div className="comparison-grid">
+            <div className="comparison-card">
+              <h4>Twoja prognozowana emerytura</h4>
+              <p className="comparison-value">{Math.round(realMonthly).toLocaleString()} zł</p>
+              <span className="comparison-desc">miesięcznie (urealniona)</span>
+            </div>
+            <div className="comparison-card">
+              <h4>Prognozowana średnia w kraju</h4>
+              <p className="comparison-value">{Math.round(futureAveragePension).toLocaleString()} zł</p>
+              <span className="comparison-desc">w roku {user.PlannedRetirementYear}</span>
+            </div>
+          </div>
+          <div className="comparison-result">
+            <p className="comparison-text">
+              Twoja emerytura będzie <strong>{pensionComparison > 100 ? 'wyższa' : 'niższa'}</strong> od prognozowanej średniej emerytury w kraju o <strong>{Math.abs(pensionComparison - 100).toFixed(1)}%</strong>
+              {pensionComparison > 100 ? ' (lepiej)' : ' (gorzej)'}.
+            </p>
+          </div>
         </div>
       </div>
 

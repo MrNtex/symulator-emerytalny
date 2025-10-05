@@ -1,5 +1,8 @@
 "use client";
 import { useUser, Gender } from "@/context/UserContext";
+import { useUsageReport } from "@/hooks/useUsageReport";
+import { useEffect } from "react";
+import "./UserResult.css";
 
 import {
   calculatePension,
@@ -7,7 +10,8 @@ import {
   calculateSickDaysImpact,
   calculateDelayedRetirementRent,
   calculateMonthlyPension,
-  calculateRetirementStep 
+  calculateRetirementStep,
+  calculateFutureAveragePension
 } from "@/calculations/calculateRent";
 
 const mapGender = (sex: Gender): 'male' | 'female' => {
@@ -20,8 +24,10 @@ const getRetirementAge = (gender: 'male' | 'female') => {
 
 const PensionDisplay = () => {
   const { user } = useUser();
+  const { sendUsageReport } = useUsageReport();
+  
   if (!user) {
-    return <div className="p-4 text-center">Proszę wprowadzić dane do kalkulatora.</div>;
+    return <div className="no-data-message">Proszę wprowadzić dane do kalkulatora.</div>;
   }  
   const mappedGender = mapGender(user.sex);
   const retirementAge = getRetirementAge(mappedGender);
@@ -37,6 +43,10 @@ const PensionDisplay = () => {
   let actualMonthly, realMonthly, sickDaysMonthly, delayedMonthly;
   let actualTotal, realTotal, sickDaysTotal, delayedTotal;
   let retirementStep: number | undefined;
+  let futureAveragePension = 0;
+  let pensionComparison = 0;
+  let targetComparison = 0;
+  let yearsToTarget = 0;
   let calculationError: string | null = null;
 
   try {
@@ -51,13 +61,55 @@ const PensionDisplay = () => {
     delayedMonthly = calculateMonthlyPension(delayedTotal, delayedRetirementAge);
     retirementStep = calculateRetirementStep(calculationParams, false, false) * 100;
 
+    // Prognozowana średnia emerytura w kraju
+    const currentAveragePension = 3500; // Aktualna średnia emerytura w Polsce (2024)
+    const yearsUntilRetirement = user.PlannedRetirementYear - new Date().getFullYear();
+    futureAveragePension = calculateFutureAveragePension(currentAveragePension, yearsUntilRetirement, new Date().getFullYear());
+    
+    // Porównanie z prognozowaną średnią emeryturą w kraju
+    pensionComparison = ((realMonthly / futureAveragePension) * 100);
+    
+    // Porównanie z oczekiwanym świadczeniem użytkownika
+    if (user.targetPension && user.targetPension > 0) {
+      targetComparison = ((realMonthly / user.targetPension) * 100);
+      
+      // Oblicz ile lat dłużej musi pracować, żeby osiągnąć cel
+      if (realMonthly < user.targetPension) {
+        const monthlyDifference = user.targetPension - realMonthly;
+        const yearlyContribution = user.GrossSalary * 12 * 0.195; // 19.5% składki emerytalnej
+        yearsToTarget = Math.ceil(monthlyDifference * 12 / yearlyContribution);
+      }
+    }
+
   } catch (error) {
     calculationError = error instanceof Error ? error.message : "Wystąpił nieznany błąd podczas obliczeń.";
     console.error("Błąd kalkulacji:", error);
   }
 
+  // Wysyłanie danych do bazy po obliczeniach
+  useEffect(() => {
+    if (!calculationError && realMonthly && realTotal) {
+      const now = new Date();
+      const usageData = {
+        date: now.toISOString().split('T')[0], // YYYY-MM-DD
+        time: now.toTimeString().split(' ')[0], // HH:MM:SS
+        expectedPension: user.targetPension || 0,
+        age: user.age || 0,
+        gender: user.sex,
+        salary: user.GrossSalary,
+        includedSickPeriods: user.includeSickDays || false,
+        accountFunds: 0, // Można dodać logikę do obliczania środków na kontach
+        realPension: realTotal,
+        adjustedPension: realMonthly,
+        postalCode: user.postalCode || '', // Opcjonalny
+      };
+
+      sendUsageReport(usageData);
+    }
+  }, [calculationError, realMonthly, realTotal, user, sendUsageReport]);
+
   if (calculationError) {
-    return <div className="p-4 text-red-600 border border-red-300 bg-red-50">Błąd: {calculationError}</div>;
+    return <div className="error-message">Błąd: {calculationError}</div>;
   }
 
   const results = {
@@ -70,60 +122,113 @@ const PensionDisplay = () => {
 
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-lg max-w-xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 border-b pb-2 text-blue-700">Wyniki Kalkulacji Emerytalnej 📊</h2>
+    <div className="pension-display">
+      <h2 className="pension-title">Wyniki Kalkulacji Emerytalnej 📊</h2>
       
-      <div className="mb-6 grid grid-cols-2 gap-4">
-        <div><p><strong>Płeć:</strong> {user.sex}</p></div>
-        <div><p><strong>Wiek Emerytalny:</strong> {retirementAge} lat</p></div>
-        <div><p><strong>Pensja Miesięczna Brutto:</strong> {user.GrossSalary} PLN</p></div>
-        <div className="p-2 border rounded bg-blue-50 text-center">
-            <p className="font-semibold text-sm text-blue-700">Stopa Zastąpienia</p>
-            <p className="text-2xl font-bold text-blue-900">{results.step.toFixed(2)}%</p>
+      <div className="user-info-grid">
+        <div className="user-info-item"><p><strong>Płeć:</strong> {user.sex}</p></div>
+        <div className="user-info-item"><p><strong>Wiek Emerytalny:</strong> {retirementAge} lat</p></div>
+        <div className="user-info-item"><p><strong>Pensja Miesięczna Brutto:</strong> {user.GrossSalary} PLN</p></div>
+        <div className="replacement-rate-card">
+            <p className="replacement-rate-label">Stopa Zastąpienia</p>
+            <p className="replacement-rate-value">{results.step.toFixed(2)}%</p>
         </div>
       </div>
 
-      <h3 className="text-xl font-semibold mt-4 mb-2 border-t pt-2">Miesięczne Kwoty Emerytur</h3>
+      <h3 className="monthly-pensions-title">Miesięczne Kwoty Emerytur</h3>
 
-      <div className="space-y-3">
+      <div className="pension-items">
         
         <ResultItem
             title="Emerytura Urealniona (Podstawa)"
             amount={results.real}
             description={`Całkowity kapitał: ${realTotal?.toFixed(2) ?? 'N/A'} PLN`}
-            color="border-blue-500 bg-blue-50"
+            color="pension-item-blue"
         />
         
         <ResultItem
             title={`Emerytura Opóźniona (do ${delayedRetirementAge} lat)`}
             amount={results.delayed}
             description={`Otrzymujesz więcej, pracując do ${delayedRetirementYear} roku.`}
-            color="border-green-500 bg-green-50"
+            color="pension-item-green"
         />
 
         <ResultItem
             title="Emerytura z Redukcją (Śr. L4)"
             amount={results.sickDays}
             description={`Emerytura urealniona, pomniejszona o wpływ L4 (~34 dni/rok).`}
-            color="border-amber-500 bg-amber-50"
+            color="pension-item-amber"
         />
 
         <ResultItem
             title="Emerytura Rzeczywista (Uproszczona)"
             amount={results.actual}
             description={`Bez waloryzacji składek - stałe składki roczne.`}
-            color="border-gray-400 bg-gray-50"
+            color="pension-item-gray"
         />
       </div>
+
+      <div className="comparison-section">
+        <h3 className="comparison-title">Porównanie ze średnią emeryturą w kraju</h3>
+        <div className="comparison-grid">
+          <div className="comparison-card">
+            <h4 className="comparison-card-title">Twoja prognozowana emerytura</h4>
+            <p className="comparison-card-amount">{Math.round(realMonthly ?? 0).toLocaleString()} zł</p>
+            <span className="comparison-card-subtitle">miesięcznie (urealniona)</span>
+          </div>
+          <div className="comparison-card">
+            <h4 className="comparison-card-title">Prognozowana średnia w kraju</h4>
+            <p className="comparison-card-amount">{Math.round(futureAveragePension).toLocaleString()} zł</p>
+            <span className="comparison-card-subtitle">w roku {user.PlannedRetirementYear}</span>
+          </div>
+        </div>
+        <div className="comparison-summary">
+          <p className="comparison-summary-text">
+            Twoja emerytura będzie <strong>{pensionComparison > 100 ? 'wyższa' : 'niższa'}</strong> od prognozowanej średniej emerytury w kraju o <strong>{Math.abs(pensionComparison - 100).toFixed(1)}%</strong>
+            {pensionComparison > 100 ? ' (lepiej)' : ' (gorzej)'}.
+          </p>
+        </div>
+      </div>
+
+      {user.targetPension && user.targetPension > 0 && (
+        <div className="comparison-section">
+          <h3 className="comparison-title">Porównanie z Twoim celem emerytalnym</h3>
+          <div className="comparison-grid">
+            <div className="comparison-card">
+              <h4 className="comparison-card-title">Twoja prognozowana emerytura</h4>
+              <p className="comparison-card-amount">{Math.round(realMonthly ?? 0).toLocaleString()} zł</p>
+              <span className="comparison-card-subtitle">miesięcznie (urealniona)</span>
+            </div>
+            <div className="comparison-card">
+              <h4 className="comparison-card-title">Twoje oczekiwane świadczenie</h4>
+              <p className="comparison-card-amount">{user.targetPension.toLocaleString()} zł</p>
+              <span className="comparison-card-subtitle">cel do osiągnięcia</span>
+            </div>
+          </div>
+          <div className="comparison-summary">
+            {targetComparison >= 100 ? (
+              <p className="comparison-summary-text">
+                <strong>Gratulacje! 🎉</strong> Twoja prognozowana emerytura <strong>przekracza</strong> Twój cel o <strong>{(targetComparison - 100).toFixed(1)}%</strong>.
+              </p>
+            ) : (
+              <p className="comparison-summary-text">
+                Twoja prognozowana emerytura jest <strong>niższa</strong> od Twojego celu o <strong>{(100 - targetComparison).toFixed(1)}%</strong>.
+                <br />
+                <strong>Aby osiągnąć cel, musisz pracować o {yearsToTarget} lat dłużej</strong> (do roku {user.PlannedRetirementYear + yearsToTarget}).
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const ResultItem = ({ title, amount, description, color }: { title: string, amount: number, description: string, color: string }) => (
-    <div className={`p-3 border-l-4 ${color}`}>
-        <p className="font-semibold">{title}</p>
-        <p className="text-xl font-bold text-gray-800">{amount.toFixed(2)} PLN/mies.</p>
-        <p className="text-sm text-gray-600">{description}</p>
+    <div className={`pension-item ${color}`}>
+        <p className="pension-item-title">{title}</p>
+        <p className="pension-item-amount">{amount.toFixed(2)} PLN/mies.</p>
+        <p className="pension-item-description">{description}</p>
     </div>
 );
 

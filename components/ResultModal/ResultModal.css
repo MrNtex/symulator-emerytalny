@@ -94,6 +94,81 @@
   color: #dc2626;
 }
 
+.comparison-section {
+  background-color: #f0f9ff;
+  color: #1a1a1a;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #bfdbfe;
+}
+
+.comparison-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+  text-align: center;
+}
+
+.comparison-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.comparison-card {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #bfdbfe;
+}
+
+.comparison-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.comparison-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 10px 0;
+  color: #0070f3;
+}
+
+.comparison-desc {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.comparison-result {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  text-align: center;
+}
+
+.comparison-text {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.comparison-text strong {
+  color: #0070f3;
+}
+
 .info-section {
   background-color: #fef3c7;
   color: #1a1a1a;
@@ -214,7 +289,8 @@
 @media (max-width: 768px) {
   .amounts-grid,
   .stats-grid,
-  .postpone-grid {
+  .postpone-grid,
+  .comparison-grid {
     grid-template-columns: 1fr;
   }
   
