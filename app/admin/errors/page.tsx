@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import DataTable from '../components/DataTable';
 import { mockSystemErrors } from '../mockData';
-import { CheckCircle, Filter } from 'lucide-react';
+import { CircleCheck as CheckCircle, ListFilter as Filter } from 'lucide-react';
 
 export default function ErrorsPage() {
   const [errors, setErrors] = useState(mockSystemErrors);

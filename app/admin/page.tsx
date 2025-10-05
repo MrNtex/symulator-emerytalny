@@ -4,7 +4,7 @@ import { useState } from 'react';
 import AdminHeader from './components/AdminHeader';
 import StatCard from './components/StatCard';
 import ChartCard from './components/ChartCard';
-import { BarChart3, DollarSign, TrendingUp, FileDown, AlertTriangle, Clock } from 'lucide-react';
+import { ChartBar as BarChart3, DollarSign, TrendingUp, FileDown, TriangleAlert as AlertTriangle, Clock } from 'lucide-react';
 import { mockDashboardStats, mockChartData } from './mockData';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 

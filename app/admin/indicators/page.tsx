@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import { mockEconomicIndicators } from '../mockData';
-import { Edit2, Save, X } from 'lucide-react';
+import { CreditCard as Edit2, Save, X } from 'lucide-react';
 
 type IndicatorType = 'wage_growth' | 'inflation' | 'pension_valorization' | 'life_expectancy';
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, TrendingUp, AlertTriangle, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, TrendingUp, TriangleAlert as AlertTriangle, FileText } from 'lucide-react';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
