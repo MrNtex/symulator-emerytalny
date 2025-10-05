@@ -619,19 +619,31 @@ const Dashboard = () => {
 
             <div className="chart-container">
               <h3>Wpływ Opóźnienia Emerytury</h3>
-              <div className="line-chart">
-                <div className="chart-line">
-                  <div className="chart-point" style={{ left: '0%' }}>
-                    <span className="point-value">0%</span>
-                    <span className="point-label">Obecnie</span>
+              <div className="delay-impact-chart">
+                <div className="delay-bars">
+                  <div className="delay-bar-item">
+                    <div className="delay-bar-label">Emerytura standardowa</div>
+                    <div className="delay-bar-wrapper">
+                      <div className="delay-bar-fill" style={{ width: '60%', backgroundColor: '#64748b' }}></div>
+                      <span className="delay-bar-value">8 250 zł</span>
+                    </div>
+                    <span className="delay-bar-subtitle">Wiek: 67 lat (0%)</span>
                   </div>
-                  <div className="chart-point" style={{ left: '20%' }}>
-                    <span className="point-value">+8%</span>
-                    <span className="point-label">+1 rok</span>
+                  <div className="delay-bar-item">
+                    <div className="delay-bar-label">Po opóźnieniu +1 rok</div>
+                    <div className="delay-bar-wrapper">
+                      <div className="delay-bar-fill" style={{ width: '65%', backgroundColor: '#0ea5e9' }}></div>
+                      <span className="delay-bar-value">8 910 zł</span>
+                    </div>
+                    <span className="delay-bar-subtitle">Wiek: 68 lat (+8%)</span>
                   </div>
-                  <div className="chart-point" style={{ left: '100%' }}>
-                    <span className="point-value">+32%</span>
-                    <span className="point-label">+5 lat</span>
+                  <div className="delay-bar-item">
+                    <div className="delay-bar-label">Po opóźnieniu +5 lat</div>
+                    <div className="delay-bar-wrapper">
+                      <div className="delay-bar-fill" style={{ width: '80%', backgroundColor: '#00993F' }}></div>
+                      <span className="delay-bar-value">10 890 zł</span>
+                    </div>
+                    <span className="delay-bar-subtitle">Wiek: 72 lata (+32%)</span>
                   </div>
                 </div>
               </div>
