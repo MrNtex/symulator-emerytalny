@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import DataTable from '../components/DataTable';
+<<<<<<< HEAD
 import { mockMonthlyReports } from '@/shared/data/mockData';
+=======
+import { mockMonthlyReports } from '../mockData';
+>>>>>>> ad5475a7ad2f6ff6f5fc0764adf30d77c4176cde
 import { FileDown, FileText, FileJson } from 'lucide-react';
 
 export default function ExportsPage() {
