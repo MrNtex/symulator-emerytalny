@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useUser } from '@/context/UserContext';
 import './Dashboard.css';
 import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
+import PensionForecastChart from '@/components/PensionForecastChart';
+import { calculateTotalBalance, getLatestBalance, formatCurrency } from '@/utils/pensionCalculations';
 
 interface SalaryChangeEvent {
   id: string;
@@ -31,9 +33,20 @@ interface SubAccountDepositEvent {
 
 type TimelineEvent = SalaryChangeEvent | SickLeaveEvent | SubAccountDepositEvent;
 
-const Dashboard = () => {
+interface BalanceData {
+  mainBalance: number;
+  subBalance: number;
+}
+
+interface DashboardProps {
+  balanceData: { [year: string]: BalanceData };
+}
+
+const Dashboard = ({ balanceData }: DashboardProps) => {
   const { user } = useUser();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const latestBalance = getLatestBalance(balanceData);
+  const totalBalance = calculateTotalBalance(balanceData);
   const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
   const [isAddingSickLeave, setIsAddingSickLeave] = useState(false);
   const [isAddingSubAccountDeposit, setIsAddingSubAccountDeposit] = useState(false);
@@ -488,16 +501,36 @@ const Dashboard = () => {
           <div className="info-card">
             <h3>Konto ZUS</h3>
             <div className="account-value">
-              <span className="value-label">Zgromadzona kwota:</span>
-              <span className="value-amount">0,00 zł</span>
+              <span className="value-label">Narastająco zgromadzona kwota:</span>
+              <span className="value-amount">{formatCurrency(totalBalance.totalMain)} zł</span>
+            </div>
+            <div className="account-value" style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.8 }}>
+              <span className="value-label">Ostatni rok ({latestBalance.year}):</span>
+              <span className="value-amount">{formatCurrency(latestBalance.mainBalance)} zł</span>
             </div>
           </div>
 
           <div className="info-card">
             <h3>Subkonto ZUS</h3>
             <div className="account-value">
-              <span className="value-label">Zgromadzona kwota:</span>
-              <span className="value-amount">0,00 zł</span>
+              <span className="value-label">Narastająco zgromadzona kwota:</span>
+              <span className="value-amount">{formatCurrency(totalBalance.totalSub)} zł</span>
+            </div>
+            <div className="account-value" style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.8 }}>
+              <span className="value-label">Ostatni rok ({latestBalance.year}):</span>
+              <span className="value-amount">{formatCurrency(latestBalance.subBalance)} zł</span>
+            </div>
+          </div>
+
+          <div className="info-card">
+            <h3>Łączny Kapitał</h3>
+            <div className="account-value">
+              <span className="value-label">Suma narastająco:</span>
+              <span className="value-amount">{formatCurrency(totalBalance.total)} zł</span>
+            </div>
+            <div className="account-value" style={{ marginTop: '10px', fontSize: '0.9em', opacity: 0.8 }}>
+              <span className="value-label">Ostatni rok ({latestBalance.year}):</span>
+              <span className="value-amount">{formatCurrency(latestBalance.total)} zł</span>
             </div>
           </div>
         </div>
@@ -1017,10 +1050,14 @@ const Dashboard = () => {
         </div>
 
         <div className="account-growth-section">
-          <h2>Wzrost Środków na Kontach ZUS</h2>
-          <div className="growth-chart-placeholder">
-            <p>Wykres pokazujący wzrost kwot zgromadzonych na koncie i subkoncie w czasie</p>
-          </div>
+          <h2>Narastający Kapitał Emerytalny</h2>
+          <p style={{ marginBottom: '20px', color: '#64748b' }}>
+            Poniższy wykres przedstawia narastający kapitał zgromadzony na koncie głównym (saldo) i subkoncie ZUS w poszczególnych latach.
+          </p>
+          <PensionForecastChart
+            balanceData={balanceData}
+            startYear={2020}
+          />
         </div>
 
         <div className="report-section">
