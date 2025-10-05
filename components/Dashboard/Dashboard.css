@@ -138,6 +138,14 @@
   .add-event-btn.subaccount-btn:hover {
     background-color: #1d4ed8;
   }
+
+  .add-event-btn.subaccount-btn {
+    background-color: #2563eb;
+  }
+
+  .add-event-btn.subaccount-btn:hover {
+    background-color: #1d4ed8;
+  }
   
   .timeline-container {
     width: 100%;
