@@ -6,32 +6,13 @@ import './Dashboard.css';
 import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
 import PensionForecastChart from '@/components/PensionForecastChart';
 import { calculateTotalBalance, getLatestBalance, formatCurrency } from '@/utils/pensionCalculations';
-
-interface SalaryChangeEvent {
-  id: string;
-  type: 'salary';
-  date: string;
-  amount: number;
-  title: string;
-}
-
-interface SickLeaveEvent {
-  id: string;
-  type: 'sickLeave';
-  startDate: string;
-  endDate: string;
-  title: string;
-}
-
-interface SubAccountDepositEvent {
-  id: string;
-  type: 'subAccountDeposit';
-  date: string;
-  amount: number;
-  title: string;
-}
-
-type TimelineEvent = SalaryChangeEvent | SickLeaveEvent | SubAccountDepositEvent;
+import {
+  calculatePensionWithEvents,
+  convertBalanceDataToChart,
+  type TimelineEvent
+} from '@/utils/dynamicPensionCalculations';
+import salaryGrowthData from '@/calculations/wskaznik_wzrostu_wynagrodzenia.json';
+import averageSalaryData from '@/calculations/average_salary.json';
 
 interface BalanceData {
   mainBalance: number;
@@ -42,9 +23,10 @@ interface DashboardProps {
   balanceData: { [year: string]: BalanceData };
 }
 
-const Dashboard = ({ balanceData }: DashboardProps) => {
+const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
   const { user } = useUser();
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [balanceData, setBalanceData] = useState(initialBalanceData);
   const latestBalance = getLatestBalance(balanceData);
   const totalBalance = calculateTotalBalance(balanceData);
   const [isAddingSalaryChange, setIsAddingSalaryChange] = useState(false);
@@ -79,15 +61,57 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
   const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 
   useEffect(() => {
+    if (user && events.length > 0) {
+      const gender = user.sex === 'Kobieta' ? 'female' : 'male';
+
+      const calculationResult = calculatePensionWithEvents(
+        {
+          monthlyIncome: user.GrossSalary,
+          yearWorkStart: user.StartYear,
+          yearRetirement: user.PlannedRetirementYear,
+          gender,
+          includeSickDays: user.includeSickDays,
+          sickDaysPerYear: user.sickDaysPerYear || 34,
+        },
+        events,
+        salaryGrowthData,
+        averageSalaryData
+      );
+
+      const newBalanceData = convertBalanceDataToChart(calculationResult.yearlyBalances);
+      setBalanceData(newBalanceData);
+    } else if (user) {
+      const gender = user.sex === 'Kobieta' ? 'female' : 'male';
+
+      const calculationResult = calculatePensionWithEvents(
+        {
+          monthlyIncome: user.GrossSalary,
+          yearWorkStart: user.StartYear,
+          yearRetirement: user.PlannedRetirementYear,
+          gender,
+          includeSickDays: user.includeSickDays,
+          sickDaysPerYear: user.sickDaysPerYear || 34,
+        },
+        [],
+        salaryGrowthData,
+        averageSalaryData
+      );
+
+      const newBalanceData = convertBalanceDataToChart(calculationResult.yearlyBalances);
+      setBalanceData(newBalanceData);
+    }
+  }, [events, user]);
+
+  useEffect(() => {
     if (timelineRef.current) {
       const currentYearIndex = years.indexOf(currentYear);
       const totalYears = years.length;
       const scrollPercentage = currentYearIndex / (totalYears - 1);
-      
+
       const timelineWidth = timelineRef.current.scrollWidth;
       const containerWidth = timelineRef.current.clientWidth;
       const maxScroll = timelineWidth - containerWidth;
-      
+
       const scrollPosition = scrollPercentage * maxScroll;
       timelineRef.current.scrollLeft = scrollPosition;
     }
@@ -95,7 +119,7 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
 
   const handleAddSalaryChange = () => {
     if (salaryChange.date && salaryChange.amount && salaryChange.title) {
-      const event: SalaryChangeEvent = {
+      const event: TimelineEvent = {
         id: Date.now().toString(),
         type: 'salary',
         date: salaryChange.date,
@@ -114,7 +138,7 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
 
   const handleAddSickLeave = () => {
     if (sickLeave.startDate && sickLeave.endDate && sickLeave.title) {
-      const event: SickLeaveEvent = {
+      const event: TimelineEvent = {
         id: Date.now().toString(),
         type: 'sickLeave',
         startDate: sickLeave.startDate,
@@ -133,7 +157,7 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
 
   const handleAddSubAccountDeposit = () => {
     if (subAccountDeposit.date && subAccountDeposit.amount && subAccountDeposit.title) {
-      const event: SubAccountDepositEvent = {
+      const event: TimelineEvent = {
         id: Date.now().toString(),
         type: 'subAccountDeposit',
         date: subAccountDeposit.date,
@@ -184,20 +208,20 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
 
   const getEventYear = (event: TimelineEvent): number => {
     if (event.type === 'salary' || event.type === 'subAccountDeposit') {
-      return new Date(event.date).getFullYear();
+      return new Date(event.date!).getFullYear();
     } else {
-      return new Date(event.startDate).getFullYear();
+      return new Date(event.startDate!).getFullYear();
     }
   };
 
   const getEventDateRange = (event: TimelineEvent): { start: Date; end: Date } => {
     if (event.type === 'salary' || event.type === 'subAccountDeposit') {
-      const date = new Date(event.date);
+      const date = new Date(event.date!);
       return { start: date, end: date };
     } else {
       return {
-        start: new Date(event.startDate),
-        end: new Date(event.endDate),
+        start: new Date(event.startDate!),
+        end: new Date(event.endDate!),
       };
     }
   };
@@ -453,12 +477,12 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
           <>
             <Text style={styles.sectionTitle}>WYDARZENIA NA OSI CZASU</Text>
             {events.map((event) => {
-              const eventText = event.type === 'salary' 
-                ? `Zmiana wynagrodzenia: ${event.title} - ${event.amount.toLocaleString('pl-PL')} zł (${new Date(event.date).toLocaleDateString('pl-PL')})`
+              const eventText = event.type === 'salary'
+                ? `Zmiana wynagrodzenia: ${event.title} - ${event.amount?.toLocaleString('pl-PL')} zł (${new Date(event.date!).toLocaleDateString('pl-PL')})`
                 : event.type === 'subAccountDeposit'
-                ? `Wpłata na subkonto: ${event.title} - ${event.amount.toLocaleString('pl-PL')} zł (${new Date(event.date).toLocaleDateString('pl-PL')})`
-                : `Zwolnienie chorobowe: ${event.title} (${new Date(event.startDate).toLocaleDateString('pl-PL')} - ${new Date(event.endDate).toLocaleDateString('pl-PL')})`;
-              
+                ? `Wpłata na subkonto: ${event.title} - ${event.amount?.toLocaleString('pl-PL')} zł (${new Date(event.date!).toLocaleDateString('pl-PL')})`
+                : `Zwolnienie chorobowe: ${event.title} (${new Date(event.startDate!).toLocaleDateString('pl-PL')} - ${new Date(event.endDate!).toLocaleDateString('pl-PL')})`;
+
               return (
                 <Text key={event.id} style={styles.eventItem}>
                   {eventText}
@@ -798,7 +822,7 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
                           ></div>
                           <div className="event-content">
                             <h4>{event.title}</h4>
-                            <p>{new Date(event.startDate).toLocaleDateString('pl-PL')} - {new Date(event.endDate).toLocaleDateString('pl-PL')}</p>
+                            <p>{new Date(event.startDate!).toLocaleDateString('pl-PL')} - {new Date(event.endDate!).toLocaleDateString('pl-PL')}</p>
                           </div>
                         </div>
                       </div>
@@ -826,8 +850,8 @@ const Dashboard = ({ balanceData }: DashboardProps) => {
                         ></div>
                         <div className="event-content">
                           <h4>{event.title}</h4>
-                          <p>Kwota: {event.amount.toLocaleString('pl-PL')} zł</p>
-                          <p>Data: {new Date(event.date).toLocaleDateString('pl-PL')}</p>
+                          <p>Kwota: {event.amount?.toLocaleString('pl-PL')} zł</p>
+                          <p>Data: {new Date(event.date!).toLocaleDateString('pl-PL')}</p>
                         </div>
                       </div>
                     );

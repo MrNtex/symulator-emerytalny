@@ -12,6 +12,10 @@ interface RetirementData {
   grossSalary: number | '';
   startYear: number;
   plannedRetirementYear: number | '';
+  sickDaysPerYear: number | '';
+  includeSickDays: boolean;
+  includeDelayedRetirement: boolean;
+  targetPension: number | '';
 }
 
 const RETIREMENT_AGE_WOMAN = 60;
@@ -29,13 +33,25 @@ const UserForm: React.FC = () => {
     grossSalary: user?.GrossSalary ?? '' as number | '',
     startYear: initialStartYear,
     plannedRetirementYear: user?.PlannedRetirementYear ?? '' as number | '',
+    sickDaysPerYear: user?.sickDaysPerYear ?? 34 as number | '',
+    includeSickDays: user?.includeSickDays ?? false,
+    includeDelayedRetirement: user?.includeDelayedRetirement ?? false,
+    targetPension: user?.targetPension ?? '' as number | '',
   });
 
   const lastDefaultYear = useRef<number | ''>('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    const newValue = type === 'number' && value !== '' ? parseFloat(value) : value;
+    let newValue: string | number | boolean;
+
+    if (type === 'checkbox') {
+      newValue = (e.target as HTMLInputElement).checked;
+    } else if (type === 'number' && value !== '') {
+      newValue = parseFloat(value);
+    } else {
+      newValue = value;
+    }
 
     if (name === 'plannedRetirementYear' && newValue !== defaultRetirementYear) {
       lastDefaultYear.current = '';
@@ -65,7 +81,7 @@ const UserForm: React.FC = () => {
     }
 
     return '';
-  }, [formData.age, formData.gender, currentYear]);
+  }, [formData, currentYear]);
 
   React.useEffect(() => {
     if (!defaultRetirementYear) return;
@@ -100,7 +116,11 @@ const UserForm: React.FC = () => {
         sex: validData.sex as Gender,
         GrossSalary: validData.GrossSalary as number,
         StartYear: validData.StartYear as number,
-        PlannedRetirementYear: validData.PlannedRetirementYear as number
+        PlannedRetirementYear: validData.PlannedRetirementYear as number,
+        sickDaysPerYear: formData.sickDaysPerYear as number || 34,
+        includeSickDays: formData.includeSickDays,
+        includeDelayedRetirement: formData.includeDelayedRetirement,
+        targetPension: formData.targetPension as number || undefined
       });
     }
   }, [formData, setUser]);
@@ -117,7 +137,15 @@ const UserForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const isFormValid = Object.values(formData).every(value => value !== '' && value !== null && value !== undefined);
+    const requiredFields = {
+      age: formData.age,
+      gender: formData.gender,
+      grossSalary: formData.grossSalary,
+      startYear: formData.startYear,
+      plannedRetirementYear: formData.plannedRetirementYear
+    };
+
+    const isFormValid = Object.values(requiredFields).every(value => value !== '' && value !== null && value !== undefined);
 
     if (isFormValid) {
       setUser({
@@ -125,7 +153,11 @@ const UserForm: React.FC = () => {
         sex: formData.gender as Gender,
         GrossSalary: formData.grossSalary as number,
         StartYear: formData.startYear as number,
-        PlannedRetirementYear: formData.plannedRetirementYear as number
+        PlannedRetirementYear: formData.plannedRetirementYear as number,
+        sickDaysPerYear: formData.sickDaysPerYear as number || 34,
+        includeSickDays: formData.includeSickDays,
+        includeDelayedRetirement: formData.includeDelayedRetirement,
+        targetPension: formData.targetPension as number || undefined
       });
       router.push('/wyniki');
     } else {
@@ -257,6 +289,95 @@ const UserForm: React.FC = () => {
                 {defaultRetirementYear && (
                 <p className="form-hint">* Obowiązkowy wiek emerytalny: {defaultRetirementYear}.</p>
                 )}
+            </div>
+
+            {/* Dni chorobowe */}
+            <div className="form-group">
+                <label>
+                <input
+                    type="checkbox"
+                    name="includeSickDays"
+                    checked={formData.includeSickDays}
+                    onChange={handleChange}
+                    style={{ width: 'auto', marginRight: '10px' }}
+                />
+                Uwzględnij wpływ chorób na emeryturę
+                <span className="tooltip-wrapper">
+                    <span className="tooltip-icon">?</span>
+                    <span className="tooltip-text">Zaznacz, jeśli chcesz uwzględnić wpływ zwolnień chorobowych na wysokość emerytury</span>
+                </span>
+                </label>
+            </div>
+
+            {formData.includeSickDays && (
+                <div className="form-group">
+                <label htmlFor="sickDaysPerYear">
+                    Średnia liczba dni chorobowych rocznie:
+                    <span className="tooltip-wrapper">
+                    <span className="tooltip-icon">?</span>
+                    <span className="tooltip-text">Podaj średnią liczbę dni chorobowych w ciągu roku (domyślnie: 34)</span>
+                    </span>
+                </label>
+                <div className="number-input-wrapper">
+                    <input
+                    type="number"
+                    id="sickDaysPerYear"
+                    name="sickDaysPerYear"
+                    min="0"
+                    max="365"
+                    value={formData.sickDaysPerYear}
+                    onChange={handleChange}
+                    />
+                    <span className="number-input-arrows">
+                    <span className="arrow-up" onClick={() => handleArrowClick('sickDaysPerYear', 'up')}></span>
+                    <span className="arrow-down" onClick={() => handleArrowClick('sickDaysPerYear', 'down')}></span>
+                    </span>
+                </div>
+                </div>
+            )}
+
+            {/* Opóźnienie emerytury */}
+            <div className="form-group">
+                <label>
+                <input
+                    type="checkbox"
+                    name="includeDelayedRetirement"
+                    checked={formData.includeDelayedRetirement}
+                    onChange={handleChange}
+                    style={{ width: 'auto', marginRight: '10px' }}
+                />
+                Rozważ opóźnienie przejścia na emeryturę
+                <span className="tooltip-wrapper">
+                    <span className="tooltip-icon">?</span>
+                    <span className="tooltip-text">Zaznacz, aby zobaczyć jak opóźnienie emerytury wpłynie na jej wysokość</span>
+                </span>
+                </label>
+            </div>
+
+            {/* Docelowa emerytura */}
+            <div className="form-group">
+                <label htmlFor="targetPension">
+                Docelowa miesięczna emerytura (PLN - opcjonalnie):
+                <span className="tooltip-wrapper">
+                    <span className="tooltip-icon">?</span>
+                    <span className="tooltip-text">Podaj kwotę emerytury, którą chciałbyś osiągnąć (opcjonalnie)</span>
+                </span>
+                </label>
+                <div className="number-input-wrapper">
+                <input
+                    type="number"
+                    id="targetPension"
+                    name="targetPension"
+                    min="0"
+                    step="100"
+                    value={formData.targetPension}
+                    onChange={handleChange}
+                />
+                <span className="number-input-arrows">
+                    <span className="arrow-up" onClick={() => handleArrowClick('targetPension', 'up')}></span>
+                    <span className="arrow-down" onClick={() => handleArrowClick('targetPension', 'down')}></span>
+                </span>
+                </div>
             </div>
 
             <button type="submit">Symuluj Emeryturę</button>
