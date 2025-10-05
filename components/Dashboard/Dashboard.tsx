@@ -624,24 +624,27 @@ const Dashboard = () => {
                   <div className="delay-bar-item">
                     <div className="delay-bar-label">Emerytura standardowa</div>
                     <div className="delay-bar-wrapper">
-                      <div className="delay-bar-fill" style={{ width: '60%', backgroundColor: '#64748b' }}></div>
-                      <span className="delay-bar-value">8 250 zł</span>
+                      <div className="delay-bar-fill" style={{ width: '60%', backgroundColor: '#64748b' }}>
+                        <span className="delay-bar-value">8 250 zł</span>
+                      </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 67 lat (0%)</span>
                   </div>
                   <div className="delay-bar-item">
                     <div className="delay-bar-label">Po opóźnieniu +1 rok</div>
                     <div className="delay-bar-wrapper">
-                      <div className="delay-bar-fill" style={{ width: '65%', backgroundColor: '#0ea5e9' }}></div>
-                      <span className="delay-bar-value">8 910 zł</span>
+                      <div className="delay-bar-fill" style={{ width: '65%', backgroundColor: '#0ea5e9' }}>
+                        <span className="delay-bar-value">8 910 zł</span>
+                      </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 68 lat (+8%)</span>
                   </div>
                   <div className="delay-bar-item">
                     <div className="delay-bar-label">Po opóźnieniu +5 lat</div>
                     <div className="delay-bar-wrapper">
-                      <div className="delay-bar-fill" style={{ width: '80%', backgroundColor: '#00993F' }}></div>
-                      <span className="delay-bar-value">10 890 zł</span>
+                      <div className="delay-bar-fill" style={{ width: '80%', backgroundColor: '#00993F' }}>
+                        <span className="delay-bar-value">10 890 zł</span>
+                      </div>
                     </div>
                     <span className="delay-bar-subtitle">Wiek: 72 lata (+32%)</span>
                   </div>
