@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import DataTable from '../components/DataTable';
-import { mockMonthlyReports } from '@/shared/data/mockData';
+import { mockUsageReports } from '@/shared/data/mockData';
 import { FileDown, FileText, FileJson } from 'lucide-react';
 
 export default function ExportsPage() {
-  const [reports] = useState(mockMonthlyReports);
+  const [reports] = useState(mockUsageReports);
 
   const handleRefresh = () => {
     window.location.reload();
@@ -18,13 +18,32 @@ export default function ExportsPage() {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Miesiąc', 'Śr. emerytura (zł)', 'Śr. stopa zastąpienia (%)', 'Liczba raportów'];
+    const headers = [
+    'Data użycia',
+    'Godzina użycia',
+    'Emerytura oczekiwana',
+    'Wiek',
+    'Płeć',
+    'Wysokość wynagrodzenia',
+    'Czy uwzględniał okresy choroby',
+    'Wysokość zgromadzonych środków na koncie i Subkoncie',
+    'Emerytura rzeczywista',
+    'Emerytura urealniona',
+    'Kod pocztowy'
+  ];
     const rows = reports.map(r => [
-      new Date(r.month).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long' }),
-      r.avg_pension,
-      r.avg_replacement_rate,
-      r.report_count
-    ]);
+    new Date(r.usage_date).toLocaleDateString('pl-PL'),
+    new Date(r.usage_date).toLocaleTimeString('pl-PL'),
+    r.expected_pension,
+    r.age,
+    r.gender,
+    r.salary,
+    r.included_sick_periods ? 'Tak' : 'Nie',
+    r.account_funds,
+    r.actual_pension,
+    r.real_pension,
+    r.postal_code
+  ]);
 
     const csvContent = [headers, ...rows]
       .map(row => row.join(','))
@@ -50,31 +69,50 @@ export default function ExportsPage() {
     alert('Funkcja eksportu do PDF zostanie wkrótce dodana!');
   };
 
-  const handleExportXLS = () => {
-    const headers = ['Miesiąc', 'Śr. emerytura (zł)', 'Śr. stopa zastąpienia (%)', 'Liczba raportów'];
-    const rows = reports.map(r => [
-      new Date(r.month).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long' }),
-      r.avg_pension,
-      r.avg_replacement_rate,
-      r.report_count
-    ]);
+ const handleExportXLS = () => {
+  const headers = [
+    'Data użycia',
+    'Godzina użycia',
+    'Emerytura oczekiwana',
+    'Wiek',
+    'Płeć',
+    'Wysokość wynagrodzenia',
+    'Czy uwzględniał okresy choroby',
+    'Wysokość zgromadzonych środków na koncie i Subkoncie',
+    'Emerytura rzeczywista',
+    'Emerytura urealniona',
+    'Kod pocztowy'
+  ];
 
-    // Tworzymy prostą tabelę HTML
-    let table = '<table border="1" style="border-collapse:collapse;">';
-    table += '<thead><tr>' + headers.map(h => `<th style="background:#e5f5e0;">${h}</th>`).join('') + '</tr></thead>';
-    table += '<tbody>';
-    rows.forEach(row => {
-      table += '<tr>' + row.map(cell => `<td style="padding:4px 8px;">${cell}</td>`).join('') + '</tr>';
-    });
-    table += '</tbody></table>';
+  const rows = reports.map(r => [
+    new Date(r.usage_date).toLocaleDateString('pl-PL'),
+    new Date(r.usage_date).toLocaleTimeString('pl-PL'),
+    r.expected_pension,
+    r.age,
+    r.gender,
+    r.salary,
+    r.included_sick_periods ? 'Tak' : 'Nie',
+    r.account_funds,
+    r.actual_pension,
+    r.real_pension,
+    r.postal_code
+  ]);
 
-    // Tworzymy Blob i pobieramy jako .xls
-    const blob = new Blob([`\uFEFF${table}`], { type: 'application/vnd.ms-excel' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `raporty_miesieczne_${new Date().toISOString().split('T')[0]}.xls`;
-    link.click();
-  };
+  let table = '<table border="1" style="border-collapse:collapse;">';
+  table += '<thead><tr>' + headers.map(h => `<th style="background:#e5f5e0;">${h}</th>`).join('') + '</tr></thead>';
+  table += '<tbody>';
+  rows.forEach(row => {
+    table += '<tr>' + row.map(cell => `<td style="padding:4px 8px;">${cell}</td>`).join('') + '</tr>';
+  });
+  table += '</tbody></table>';
+
+  const blob = new Blob([`\uFEFF${table}`], { type: 'application/vnd.ms-excel' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `raport_uzyc_${new Date().toISOString().split('T')[0]}.xls`;
+  link.click();
+};
+
 
   const columns = [
     {
@@ -134,59 +172,6 @@ export default function ExportsPage() {
   return (
     <div>
       <AdminHeader title="Eksport i raporty" onRefresh={handleRefresh} />
-
-      <div style={{
-        backgroundColor: '#fff',
-        border: '1px solid #dce7dc',
-        borderRadius: '8px',
-        padding: '28px',
-        marginBottom: '32px',
-        boxShadow: '0 2px 6px rgba(0, 65, 110, 0.08)'
-      }}>
-        <h3 style={{
-          color: '#00416E',
-          fontSize: '18px',
-          fontWeight: '600',
-          marginBottom: '16px'
-        }}>
-          Generowanie raportów
-        </h3>
-        <p style={{
-          color: '#6b7280',
-          fontSize: '14px',
-          marginBottom: '20px'
-        }}>
-          Wygeneruj zbiorczy raport miesięczny zawierający wszystkie dane statystyczne.
-        </p>
-        <button
-          onClick={handleGenerateMonthly}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: '#00993F',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '15px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#008536';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#00993F';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          <FileText size={18} />
-          Generuj raport miesięczny
-        </button>
-      </div>
 
       <div style={{
         backgroundColor: '#fff',
