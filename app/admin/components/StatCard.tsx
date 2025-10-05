@@ -3,11 +3,7 @@ import { Video as LucideIcon } from 'lucide-react';
 interface StatCardProps {
   title: string;
   value: string | number;
-<<<<<<< HEAD
   icon: typeof LucideIcon;
-=======
-  icon: LucideIcon;
->>>>>>> ad5475a7ad2f6ff6f5fc0764adf30d77c4176cde
   subtitle?: string;
   color?: string;
 }

@@ -1092,7 +1092,7 @@ const Dashboard = ({ balanceData: initialBalanceData }: DashboardProps) => {
 
         <div className="feedback-section">
           <div className="feedback-container">
-            <h3>Podziel się opinią</h3>
+            <h3>Podaj anonimową statystykę</h3>
             <p>Pomóż nam ulepszyć symulator - podaj kod pocztowy (opcjonalnie)</p>
             <div className="feedback-form">
               <input

@@ -3,11 +3,7 @@
 import { useState } from 'react';
 import AdminHeader from '../components/AdminHeader';
 import DataTable from '../components/DataTable';
-<<<<<<< HEAD
 import { mockMonthlyReports } from '@/shared/data/mockData';
-=======
-import { mockMonthlyReports } from '../mockData';
->>>>>>> ad5475a7ad2f6ff6f5fc0764adf30d77c4176cde
 import { FileDown, FileText, FileJson } from 'lucide-react';
 
 export default function ExportsPage() {
@@ -52,6 +48,32 @@ export default function ExportsPage() {
 
   const handleExportPDF = () => {
     alert('Funkcja eksportu do PDF zostanie wkrótce dodana!');
+  };
+
+  const handleExportXLS = () => {
+    const headers = ['Miesiąc', 'Śr. emerytura (zł)', 'Śr. stopa zastąpienia (%)', 'Liczba raportów'];
+    const rows = reports.map(r => [
+      new Date(r.month).toLocaleDateString('pl-PL', { year: 'numeric', month: 'long' }),
+      r.avg_pension,
+      r.avg_replacement_rate,
+      r.report_count
+    ]);
+
+    // Tworzymy prostą tabelę HTML
+    let table = '<table border="1" style="border-collapse:collapse;">';
+    table += '<thead><tr>' + headers.map(h => `<th style="background:#e5f5e0;">${h}</th>`).join('') + '</tr></thead>';
+    table += '<tbody>';
+    rows.forEach(row => {
+      table += '<tr>' + row.map(cell => `<td style="padding:4px 8px;">${cell}</td>`).join('') + '</tr>';
+    });
+    table += '</tbody></table>';
+
+    // Tworzymy Blob i pobieramy jako .xls
+    const blob = new Blob([`\uFEFF${table}`], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `raporty_miesieczne_${new Date().toISOString().split('T')[0]}.xls`;
+    link.click();
   };
 
   const columns = [
@@ -269,6 +291,33 @@ export default function ExportsPage() {
             >
               <FileJson size={16} />
               JSON
+            </button>
+
+            <button
+              onClick={handleExportXLS}
+              style={{
+                padding: '10px 18px',
+                backgroundColor: '#00993F',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                transition: 'background-color 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#008536';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#00993F';
+              }}
+            >
+              <FileDown size={16} />
+              XLS
             </button>
           </div>
         </div>
