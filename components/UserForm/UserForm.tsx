@@ -380,7 +380,7 @@ const UserForm: React.FC = () => {
                 </div>
             </div>
 
-            <button type="submit">Symuluj Emeryturę</button>
+            <button type="submit">Zaprognozuj moją przyszłą emeryturę</button>
         </Form>
     </div>
     
